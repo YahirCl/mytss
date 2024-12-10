@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Logo from '../../../../public/images/logo1.png'
@@ -5,18 +7,24 @@ import Link from 'next/link'
 import MyInput from '../MyInput'
 import { auth } from '../../../../firebase-config'
 import { signInWithEmailAndPassword } from 'firebase/auth'
+import { useRouter } from 'next/navigation'
 
 export default function page() {
 
+  const router = useRouter();
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  console.log(auth.currentUser?.email)
   
   async function handleLogin() {
     try{
       console.log(email);
       console.log(password);
-      //await signInWithEmailAndPassword(auth, email, password);
-      //alert("Inicio de sesión exitoso");
+      await signInWithEmailAndPassword(auth, email, password);
+      alert("Inicio de sesión exitoso");
+      router.replace('/dashboard')
       // Aquí podrías redirigir al usuario a otra página si el inicio de sesión es exitoso
       // Por ejemplo, usando router.push('/dashboard')
 

@@ -1,23 +1,24 @@
-import Link from 'next/link'
-import React from 'react'
-import { redirect } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+"use client";
 
-export default function page() {
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
+export default function Page() {
   const { user } = useAuth();
+  const router = useRouter();
 
-  console.log(user);
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    } else {
+      router.push("/auth/login");
+    }
+  }, [user, router]);
 
-  if(user) {
-    redirect('/dashboard');
-  } else {
-    redirect('/auth/login');
-  }
   return (
-    <div className='bg-white'>
-        <h1 className='text-black'>HHolaomeaaaaaaaaaaaaaaaaaaaaaaaa</h1>
-        <Link href="/auth/login" className='text-black'>Ir</Link>
+    <div className="bg-white">
+      <h1 className="text-black">Hola...</h1>
     </div>
-  )
+  );
 }

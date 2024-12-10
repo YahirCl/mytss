@@ -19,7 +19,7 @@ export default function page() {
        <MyInput placeholder='Nombre'/>
        <MyInput placeholder='Correo'/>
        <MyInput placeholder='Contraseña'/>
-       <MyInput placeholder='Repetir contrase'/>
+       <MyInput placeholder='Repetir contraseña'/>
         <button
           type="submit"
           
