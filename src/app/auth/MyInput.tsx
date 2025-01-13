@@ -1,23 +1,36 @@
-import React, { ChangeEventHandler } from 'react'
+import React, { ChangeEventHandler } from "react";
 
 type Props = {
-    secureTextEntry?: boolean;
-    placeholder?: string;
-    value?: string;
-    onChangeText?: ChangeEventHandler<HTMLInputElement>;
-    required?: boolean;
+  secureTextEntry?: boolean;
+  placeholder?: string;
+  value?: string;
+  onChangeText?: ChangeEventHandler<HTMLInputElement>;
+  required?: boolean;
+  errorMessage?: string; // Mensaje de error para mostrar debajo del input
+};
 
-}
-
-export default function MyInput({placeholder, required, onChangeText}: Props) {
+export default function MyInput({
+  placeholder,
+  value,
+  onChangeText,
+  required,
+  errorMessage,
+  secureTextEntry = false,
+}: Props) {
   return (
-    <input
-      type="text"
-      className="p-2 border border-gray-300 rounded mb-4 w-64 text-black"
-      placeholder={placeholder}
-      required={required}
-      onChange={onChangeText}
-      
-    />
-  )
+    <div className="flex flex-col mb-4 w-64">
+      <input
+        type={secureTextEntry ? "password" : "text"}
+        className={`p-2 border-2 rounded text-black ${
+          required ? "border-red-500" : "border-gray-400"
+        }`}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChangeText}
+      />
+      {errorMessage && (
+        <span className="text-red-500 text-sm mt-1">{errorMessage}</span>
+      )}
+    </div>
+  );
 }

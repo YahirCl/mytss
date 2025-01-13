@@ -3,10 +3,10 @@ import React from 'react'
 
 type Props = {
     name: string;
-    post_date: boolean;
+    date?: string;
 }
 
-export default function Card_Profile({name, post_date}: Props) {
+export default function Card_Profile({name, date}: Props) {
   return (
     <div className='flex'>
       <img 
@@ -18,7 +18,7 @@ export default function Card_Profile({name, post_date}: Props) {
       />
       <div className='ml-2 mt-1'>
         <p className='font-bold'>{name}</p>
-        {post_date && <p className='font-bold text-gray-400 text-[14px]'>3h ago</p>}
+        {date && <p className='font-bold text-gray-400 text-[14px]'>{date}</p>}
       </div>
     </div>
   )
