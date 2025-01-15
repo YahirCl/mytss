@@ -14,34 +14,46 @@ export default function page() {
 
   const router = useRouter();
 
-  const [formInfo, setFormInfo] = useState<FormInfo>({
+  const [formInfo, setFormInfo] = useState<RequiredFormFields & OthersFormFields>({
     username: "",
+    fullname: "",
     email: "",
     password: "",
     repeatPassword: ""
   });
   
-  const [formErrors, setFormErrors] = useState<Record<keyof FormInfo, FormErrors>>({
+  const [formErrors, setFormErrors] = useState<FormErrors>({
     username: {error: false, msg: ""},
+    fullname: {error: false, msg: ""},
     email: { error: false, msg: "" },
     password: { error: false, msg: "" },
     repeatPassword: {error: false, msg: ""}
   });
 
-  function validateForm(): Record<keyof FormInfo, FormErrors> {
-    const errors: Record<keyof FormInfo, FormErrors> = {
+  function validateForm(): FormErrors {
+    const errors: FormErrors = {
       username: {error: false, msg: ""},
+      fullname: {error: false, msg: ""},
       email: { error: false, msg: "" },
       password: { error: false, msg: "" },
       repeatPassword: {error: false, msg: ""}
     };
 
     if (!formInfo.username?.trim()) {
-      errors.username = { error: true, msg: "Ingrese su nombre" };
+      errors.username = { error: true, msg: "Ingrese su nombre de usuario" };
     } else if (formInfo.username.length < 4) {
       errors.username = {
         error: true,
-        msg: "El nombre debe de contener al menos 4 letras",
+        msg: "SU usuario debe de contener al menos 4 letras",
+      };
+    }
+
+    if (!formInfo.fullname?.trim()) {
+      errors.fullname = { error: true, msg: "Ingrese su nombre completo" };
+    } else if (formInfo.fullname.length < 10) {
+      errors.fullname = {
+        error: true,
+        msg: "El nombre debe de contener al menos 10 letras",
       };
     }
 
@@ -77,20 +89,23 @@ export default function page() {
     if (hasErrors) return;
 
     try {
-      await createUserWithEmailAndPassword(auth,formInfo.email, formInfo.password);
+      const userData = await createUserWithEmailAndPassword(auth,formInfo.email, formInfo.password);
 
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({username: formInfo.username, photo: ""}),
+        body: JSON.stringify({
+          uid: userData.user.uid,
+          nombreUsuario: formInfo.username,
+          nombreCompleto: formInfo.fullname,
+          email: formInfo.email,
+        }),
       });
+      
       const msg = await res.text();
-
-      console.log(msg);
-
-      alert("Cuenta creada correctamente");
+      alert(msg);
       router.replace('../dashboard');
     } catch (error) {
       console.error(error);
@@ -108,11 +123,19 @@ export default function page() {
        
       <form className='flex flex-col' onSubmit={handleRegister} >
         <MyInput
-          placeholder="Nombre"
+          placeholder="Nombre de Usuario"
           value={formInfo.username}
           onChangeText={(e) => setFormInfo({ ...formInfo, username: e.target.value })}
           required={formErrors.username.error}
           errorMessage={formErrors.username.msg}
+        />
+
+        <MyInput
+          placeholder="Nombre Completo"
+          value={formInfo.fullname}
+          onChangeText={(e) => setFormInfo({ ...formInfo, fullname: e.target.value })}
+          required={formErrors.fullname.error}
+          errorMessage={formErrors.fullname.msg}
         />
 
         <MyInput

@@ -1,16 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ProtectedRoute from '../ProtectedRoute';
 import Header from '../Header';
 import Card_Profile from './Card_Profile';
 import { useAuth } from '@/hooks/useAuth';
 import Card_Publication from './Card_Publication';
-import { auth } from '../../../firebase-config';
 
 export default function Page() {
+  const { user } = useAuth();
+  const [userData, setUserData] = useState<User>();
+
   const [selectedEmotion, setSelectedEmotion] = useState(null);
-  const [inputValue, setInputValue] = useState('');
+  const [publicationInput, setPublicationInput] = useState('');
+  const [publications, setPublications] = useState<Publication[]>([]);
+
   const emotions = [
     { emoji: '😃', label: 'Alegría' },  
     { emoji: '😨', label: 'Miedo'},
@@ -45,10 +49,67 @@ export default function Page() {
       fecha: '12-12-24',
       foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
       content: 'x4',
+    },
+    {
+      name: 'Cuco',
+      fecha: '12-12-24',
+      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
+      content: 'x4',
+    },
+    {
+      name: 'Cuco',
+      fecha: '12-12-24',
+      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
+      content: 'x4',
+    },
+    {
+      name: 'Cuco',
+      fecha: '12-12-24',
+      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
+      content: 'x4',
+    },
+    {
+      name: 'Cuco',
+      fecha: '12-12-24',
+      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
+      content: 'x4',
     }
   ]
 
-  const { user } = useAuth();
+  useEffect(() => {
+    async function getDataUser() {
+      try {
+        const res = await fetch(`/api/auth?uid=${user?.uid}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        setUserData(await res.json())
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    async function getPublications() {
+      try {
+        const res = await fetch(`/api/pub`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        setPublications(await res.json());
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    getDataUser();
+    getPublications();
+  }, [user?.uid])
 
   const handleEmotionClick = (emoji, label) => {
     if (selectedEmotion?.emoji === emoji) {
@@ -58,13 +119,40 @@ export default function Page() {
     }
   };
 
+  async function makePublication() {
+    try {
+      const res = await fetch('/api/pub', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userID: userData?.id,
+          content: publicationInput
+        }),
+      });
+
+      res.json()
+        .then((data) => {
+          setPublicationInput('');
+          setPublications([...publications, data.pub])
+          alert(data.msg);
+      });
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  console.log(publications);
+
   return (
     <ProtectedRoute>
       <Header/>
       <main className='flex flex-col items-center bg-slate-100 text-black'>
         <section className='border-[1.8px] border-black p-5 rounded-md w-[60%] mt-5'>
           <div className='flex'>
-            <Card_Profile name={user?.email} post_date />
+            <Card_Profile name={userData?.nombreUsuario} post_date />
             {selectedEmotion && (
               <p className='text-gray-500 font-bold text-sm mt-[6px] ml-2'>Me siento con: <span className='bg-blue-100 p-2 rounded-full'>{selectedEmotion.emoji} {selectedEmotion.label}</span></p>
             )}
@@ -73,8 +161,8 @@ export default function Page() {
             className='border-[1.8px] border-black p-3 rounded-md w-[100%] h-24 my-3'
             type="text"
             placeholder='¿Como te sientes?'
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            value={publicationInput}
+            onChange={(e) => setPublicationInput(e.target.value)}
           />
           
           <div className='flex flex-row justify-between items-center mt-5'>
@@ -94,12 +182,12 @@ export default function Page() {
             </div>
 
             <button className='bg-[#4B90E2] px-4 py-2 rounded-full text-white hover:bg-blue-500'
-              onClick={() => auth.signOut()}>
+              onClick={makePublication}>
               Publicar
             </button>
           </div>
         </section>
-        {pub.map((pub, index) => {
+        {publications.map((pub, index) => {
           return (
             <Card_Publication key={index} info={pub}/>
           )

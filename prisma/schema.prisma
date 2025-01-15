@@ -13,11 +13,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id Int @id @default(autoincrement())
-  username String
-  photo String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Usuario {
+  id             Int            @id @default(autoincrement())
+  uid            String         @unique
+  nombreUsuario  String         @map("nombre_usuario")
+  nombreCompleto String?        @map("nombre_completo")
+  email          String         @unique
+  fechaRegistro  DateTime       @default(now()) @map("fecha_registro")
+  avatarUrl      String?        @map("avatar_url")
+  siguiendo      Int            @default(0)
+  seguidores     Int            @default(0)
+  publicaciones  Publicacion[]
+  interacciones  Interaccion[]
+  seguidos       Seguidor[]     @relation("Seguidos")
+  seguidoresList Seguidor[]     @relation("Seguidores")
+}
 
+model Publicacion {
+  id               Int            @id @default(autoincrement())
+  usuarioId        Int            @map("usuario_id")
+  contenido        String
+  fechaPublicacion DateTime       @default(now()) @map("fecha_publicacion")
+  likes            Int            @default(0)
+  reposts          Int            @default(0)
+  usuario          Usuario        @relation(fields: [usuarioId], references: [id])
+  interacciones    Interaccion[]
+}
+
+model Interaccion {
+  id               Int       @id @default(autoincrement())
+  usuarioId        Int       @map("usuario_id")
+  publicacionId    Int       @map("publicacion_id")
+  tipoInteraccion  String    @map("tipo_interaccion")
+  fechaInteraccion DateTime  @default(now()) @map("fecha_interaccion")
+  usuario          Usuario   @relation(fields: [usuarioId], references: [id])
+  publicacion      Publicacion @relation(fields: [publicacionId], references: [id])
+}
+
+model Seguidor {
+  id              Int       @id @default(autoincrement())
+  seguidorId      Int       @map("seguidor_id")
+  seguidoId       Int       @map("seguido_id")
+  fechaSeguimiento DateTime @default(now()) @map("fecha_seguimiento")
+  seguidor        Usuario   @relation("Seguidos", fields: [seguidorId], references: [id])
+  seguido         Usuario   @relation("Seguidores", fields: [seguidoId], references: [id])
+
+  @@unique([seguidorId, seguidoId])
 }

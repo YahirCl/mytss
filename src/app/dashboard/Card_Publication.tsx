@@ -2,22 +2,16 @@
 import React from 'react'
 import Card_Profile from './Card_Profile';
 
-type PUB = {
-    name: string;
-    fecha: string;
-    foto: string;
-    content: string;
-}
 
-export default function Card_Publication({info} : {info : PUB}) {
+export default function Card_Publication({info} : {info : Publication}) {
 
-  const {name, content, fecha, foto} = info;
+  const {contenido, usuario} = info;
 
   return (
     <article className='bg-white rounded-md w-[60%] text-black my-3'>
       <div className='p-3'>
-        <Card_Profile name={name} date={fecha}/>
-        <p>{content}</p>
+        <Card_Profile name={usuario.nombreUsuario} date={usuario.fechaRegistro}/>
+        <p>{contenido}</p>
       </div>
 
       <div className='flex border-t border-gray-200 justify-around p-1'>

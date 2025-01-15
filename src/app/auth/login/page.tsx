@@ -9,33 +9,24 @@ import { auth } from "../../../../firebase-config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
-interface FormInfo {
-  email: string;
-  password: string;
-}
-
-interface FormErrors {
-  error: boolean;
-  msg: string;
-}
 
 export default function Page() {
   const router = useRouter();
 
-  const [formInfo, setFormInfo] = useState<FormInfo>({
+  const [formInfo, setFormInfo] = useState<RequiredFormFields>({
     email: "",
     password: "",
   });
 
-  const [formErrors, setFormErrors] = useState<Record<keyof FormInfo, FormErrors>>({
+  const [formErrors, setFormErrors] = useState<Record<keyof RequiredFormFields, FormErrors>>({
     email: { error: false, msg: "" },
     password: { error: false, msg: "" },
   });
 
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  function validateForm(): Record<keyof FormInfo, FormErrors> {
-    const errors: Record<keyof FormInfo, FormErrors> = {
+  function validateForm(): Record<keyof RequiredFormFields, FormErrors> {
+    const errors: Record<keyof RequiredFormFields, FormErrors> = {
       email: { error: false, msg: "" },
       password: { error: false, msg: "" },
     };
