@@ -55,14 +55,15 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const { id, ...resto } = data;
 
-    const usuarioActualizado = await prisma.usuario.update({
+    console.log(resto);
+
+    await prisma.usuario.update({
       where: { id: id },
       data: resto,
     });
 
     return NextResponse.json({
       message: 'Usuario actualizado correctamente',
-      usuario: usuarioActualizado,
     });
   } catch (error) {
     return NextResponse.json({ message: 'Error al actualizar usuario', error: error.message }, { status: 500 });

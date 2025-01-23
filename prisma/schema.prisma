@@ -21,6 +21,7 @@ model Usuario {
   email          String         @unique
   fechaRegistro  DateTime       @default(now()) @map("fecha_registro")
   avatarUrl      String?        @map("avatar_url")
+  coverUrl       String?        @map("img_cover_url")
   siguiendo      Int            @default(0)
   seguidores     Int            @default(0)
   publicaciones  Publicacion[]

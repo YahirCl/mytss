@@ -8,8 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import Card_Publication from './Card_Publication';
 
 export default function Page() {
-  const { user } = useAuth();
-  const [userData, setUserData] = useState<User>();
+  const { userData } = useAuth();
 
   const [selectedEmotion, setSelectedEmotion] = useState(null);
   const [publicationInput, setPublicationInput] = useState('');
@@ -25,73 +24,7 @@ export default function Page() {
     { emoji: '🤯', label: 'Sorprendido'},
   ];
 
-  const pub = [
-    {
-      name: 'Pedrito Salzar',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'Hoy me hicieron bulling en la escuela estoy sad',
-    },
-    {
-      name: 'Debian soto',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'A mi también',
-    },
-    {
-      name: 'Iker casillas',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'Me dijeron chico f1',
-    },
-    {
-      name: 'Cuco',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'x4',
-    },
-    {
-      name: 'Cuco',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'x4',
-    },
-    {
-      name: 'Cuco',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'x4',
-    },
-    {
-      name: 'Cuco',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'x4',
-    },
-    {
-      name: 'Cuco',
-      fecha: '12-12-24',
-      foto: 'https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg',
-      content: 'x4',
-    }
-  ]
-
   useEffect(() => {
-    async function getDataUser() {
-      try {
-        const res = await fetch(`/api/auth?uid=${user?.uid}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        setUserData(await res.json())
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
     async function getPublications() {
       try {
         const res = await fetch(`/api/pub`, {
@@ -107,9 +40,8 @@ export default function Page() {
       }
     }
 
-    getDataUser();
     getPublications();
-  }, [user?.uid])
+  }, [userData?.uid])
 
   const handleEmotionClick = (emoji, label) => {
     if (selectedEmotion?.emoji === emoji) {
@@ -144,15 +76,13 @@ export default function Page() {
     }
   }
 
-  console.log(publications);
-
   return (
     <ProtectedRoute>
       <Header/>
       <main className='flex flex-col items-center bg-slate-100 text-black'>
         <section className='border-[1.8px] border-black p-5 rounded-md w-[60%] mt-5'>
           <div className='flex'>
-            <Card_Profile name={userData?.nombreUsuario} post_date />
+            <Card_Profile name={userData?.nombreUsuario} img={userData?.avatarUrl} />
             {selectedEmotion && (
               <p className='text-gray-500 font-bold text-sm mt-[6px] ml-2'>Me siento con: <span className='bg-blue-100 p-2 rounded-full'>{selectedEmotion.emoji} {selectedEmotion.label}</span></p>
             )}

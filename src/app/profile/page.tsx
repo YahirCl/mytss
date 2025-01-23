@@ -1,7 +1,7 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
 import React from 'react'
-import { useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Header from '../Header';
 import ProtectedRoute from '../ProtectedRoute';
@@ -9,48 +9,28 @@ import Image from 'next/image';
 import Modal  from './Modal';
 
 export default function page() {
-  const { user } = useAuth();
-  const [userData, setUserData] = useState<User>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { userData } = useAuth();
 
-    useEffect(() => {
-        async function getDataUser() {
-          try {
-            const res = await fetch(`/api/auth?uid=${user?.uid}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-            
-            setUserData(await res.json())
-          } catch (error) {
-            console.error(error);
-          }
-        }
-        getDataUser();
-      }, [user?.uid])
-    
   return (
     <ProtectedRoute>
       <Header/>
       <main className='h-screen bg-slate-100' >
           <header className='h-[70vh] flex flex-col items-center bg-white'>
             <Image
-              src = '/images/good.jpg'
-              alt = 'Un ícono JPG'
-              width = {1300}
-              height = {200}
-              className='w-[60%] h-[70%] rounded-b-xl'
+              src={userData?.coverUrl as string} 
+              alt='Imagen de fondo de perfil'
+              width={1300}
+              height={200}
+              className='w-[60%] h-[70%] rounded-b-xl min-h-[70%]'
             />
             <div className='flex flex-col w-[60%] h-[100%] px-5'>
               <div className='flex border-b-2 border-gray'>
                 <Image
-                  src = '/images/messirve.jpg'
-                  alt = 'Un ícono JPG'
-                  width = {180}
-                  height = {180}
-                  className='rounded-full mt-[-60px] mb-5'
+                  src={userData?.avatarUrl as string} // Nombre público de la imagen en Cloudinary
+                  alt="Imagen de Usuario"
+                  width={210}
+                  height={0}
+                  className='rounded-full mt-[-60px] mb-5 max-h-44'
                 />
                 <div className='p-5 w-full'>
                     <h1 className='text-4xl font-bold'>{userData?.nombreUsuario}</h1>

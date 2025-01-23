@@ -22,7 +22,7 @@ type CustomButtonProps = {
     onPress?: () => void;
 }
 
-interface User {
+interface UserData {
     id: number;
     uid: string;
     nombreUsuario: string;
@@ -30,6 +30,7 @@ interface User {
     email: string;
     fechaRegistro: Date;
     avatarUrl: string | null;
+    coverUrl: string | null;
     siguiendo: number;
     seguidores: number;
 }
@@ -41,7 +42,7 @@ interface Publication {
     fechaPublicacion: string; 
     likes: number;
     reposts: number;
-    usuario: User;
+    usuario: UserData;
     interactions?: Interactions;
   }
   
@@ -52,7 +53,7 @@ interface Interactions {
     publicationId: number;
     typeInteraction: string;
     interactionDate: string;
-    user: User;
+    user: UserData;
     publication: Publication;
 }
 
@@ -61,6 +62,6 @@ interface Follower {
     followerId: number;
     followedById: number;
     followDate: string;
-    follower: User;
-    followedBy: User;
+    follower: UserData;
+    followedBy: UserData;
 }

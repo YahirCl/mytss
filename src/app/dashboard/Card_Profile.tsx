@@ -2,16 +2,17 @@
 import React from 'react'
 
 type Props = {
-    name: string;
+    name: string | undefined;
+    img: string | undefined | null;
     date?: string;
 }
 
-export default function Card_Profile({name, date}: Props) {
+export default function Card_Profile({name, img, date}: Props) {
   return (
     <div className='flex'>
       <img 
         alt="Image Profile" 
-        src="https://i.pinimg.com/736x/0a/63/1d/0a631d43ccc073b54a6781f0c9f5aed2.jpg" // Reemplaza con tu URL
+        src={img ? img : '/images/profile-round-1342-svgrepo-com.svg'} // Reemplaza con tu URL
         width={50} 
         height={50} 
         style={{ borderRadius: '50%' }} // Opcional: estilos adicionales

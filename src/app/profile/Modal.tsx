@@ -1,54 +1,124 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { useAuth } from '@/hooks/useAuth';
 
 const Modal: React.FC = () => {
+  const { userData, updateUserData } = useAuth();
+
   const [isOpen, setIsOpen] = useState(false);
-  const [profileImage, setProfileImage] = useState<string>('/images/messirve.jpg'); // Imagen por defecto
-  const [coverImage, setCoverImage] = useState<string>('/images/good.jpg'); // Imagen por defecto
-  const [isProfileChanged, setIsProfileChanged] = useState(false); // Para controlar si la foto de perfil se cambió
-  const [isCoverChanged, setIsCoverChanged] = useState(false); // Para controlar si la foto de portada se cambió
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false); // Estado para abrir la modal de confirmación
+
+  const [images, setImages] = useState({
+    profileImage: userData?.avatarUrl as string,
+    coverImage: userData?.coverUrl as string
+  })
+
+  const [newImages, setNewImages] = useState<{
+    profileImage: File | null,
+    coverImage: File | null
+  }>({profileImage: null, coverImage: null});
+
 
   const toggleModal = () => {
-    setIsOpen(!isOpen);
+    if ((images.profileImage !== userData?.avatarUrl) || (images.coverImage !== userData?.coverUrl)) {
+      setIsConfirmOpen(true);
+    } else {
+      setIsOpen(!isOpen);
+    }
   };
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setNewImages({...newImages, profileImage: file});
+
+      //Mostrar la imagen seleccionada
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProfileImage(reader.result as string); // Actualiza la imagen mostrada
-        setIsProfileChanged(true); // Marca que la foto de perfil fue cambiada
+        setImages({...images, profileImage: reader.result as string});
       };
       reader.readAsDataURL(file);
-    }
+    } 
   };
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setNewImages({...newImages, coverImage: file});
+
+      //Mostrar la imagen seleccionada
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverImage(reader.result as string); // Actualiza la imagen mostrada
-        setIsCoverChanged(true); // Marca que la foto de portada fue cambiada
+        setImages({...images, coverImage: reader.result as string});
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
-    // Lógica para guardar las imágenes (puedes agregar aquí la lógica que necesites)
-    console.log("Guardando cambios...");
-    // Después de guardar, restablece los cambios
-    setIsProfileChanged(false);
-    setIsCoverChanged(false);
+  const handleDiscardChanges = () => {
+    // Cierra todo y descarta los cambios
+    setIsConfirmOpen(false);
+    setIsOpen(false);
+    setImages({profileImage: userData?.avatarUrl as string, coverImage: userData?.coverUrl as string});
+    setNewImages({profileImage: null, coverImage: null});
+  };
+
+  const handleSave = async () => {
+    const storage = getStorage();
+    let urlProfile = userData?.avatarUrl;
+    let urlCover = userData?.coverUrl;
+
+    try {
+      if(newImages.profileImage !== null) {
+        const storageRef = ref(storage, `/users/${userData?.uid}/profile_img`);
+        await uploadBytes(storageRef, newImages.profileImage);
+        urlProfile = await getDownloadURL(storageRef);
+  
+        await fetch(`/api/auth`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: userData?.id,
+            avatarUrl: urlProfile,
+          })
+        });
+      }
+  
+      if(newImages.coverImage !== null) {
+        const storageRef = ref(storage, `/users/${userData?.uid}/cover_img`);
+        await uploadBytes(storageRef, newImages.coverImage);
+        urlCover = await getDownloadURL(storageRef);
+  
+        await fetch(`/api/auth`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: userData?.id,
+            coverUrl: urlCover,
+          })
+        });
+      }
+
+      updateUserData({...userData, avatarUrl:  urlProfile, coverUrl: urlCover} as UserData);
+      alert("Fotos actualizadas correctamente");
+      setNewImages({coverImage: null, profileImage: null});
+      setIsOpen(!isOpen);
+
+
+    } catch (error) {
+      console.error('Ocurrió un Error al actualizar la foto', error);
+    }
   };
 
   return (
     <div className="flex justify-center items-center">
-      {/* Botón para abrir el modal */}
       <button
-        onClick={toggleModal}
+        onClick={() => setIsOpen(true)}
         className="flex items-center gap-2 px-4 py-2 font-medium rounded-lg text-white bg-blue-500 hover:bg-blue-600 transition-all duration-300"
       >
         <Image
@@ -60,7 +130,7 @@ const Modal: React.FC = () => {
         Editar Foto
       </button>
 
-      {/* Modal */}
+      {/* Modal principal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div className="bg-white rounded-lg shadow-xl w-96 animate-fadeIn">
@@ -68,10 +138,9 @@ const Modal: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-800">Editar Fotos</h2>
             </div>
             <div className="px-6 py-4 space-y-6">
-              {/* Sección Foto de Perfil */}
               <div className="flex items-center gap-4">
                 <Image
-                  src={profileImage}
+                  src={images.profileImage}
                   alt="Foto de Perfil"
                   width={80}
                   height={80}
@@ -89,10 +158,9 @@ const Modal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Sección Foto de Portada */}
               <div className="flex items-center gap-4">
                 <Image
-                  src={coverImage}
+                  src={images.coverImage}
                   alt="Foto de Portada"
                   width={160}
                   height={100}
@@ -111,15 +179,13 @@ const Modal: React.FC = () => {
               </div>
             </div>
             <div className="flex justify-end px-6 py-4 border-t space-x-4">
-              {/* Botón de Cerrar */}
               <button
                 onClick={toggleModal}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-all duration-300"
               >
                 Cerrar
               </button>
-              {/* Botón de Guardar, solo visible si se cambiaron las fotos */}
-              {(isProfileChanged || isCoverChanged) && (
+              {((images.profileImage !== userData?.avatarUrl) || (images.coverImage !== userData?.coverUrl)) && (
                 <button
                   onClick={handleSave}
                   className="px-4 py-2 text-sm font-medium text-white bg-green-500 rounded hover:bg-green-600 transition-all duration-300"
@@ -127,6 +193,36 @@ const Modal: React.FC = () => {
                   Guardar
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de confirmación */}
+      {isConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-white rounded-lg shadow-xl w-80 animate-fadeIn">
+            <div className="px-6 py-4">
+              <h2 className="text-xl font-bold text-gray-800">
+                ¿Descartar los cambios?
+              </h2>
+              <p className="text-gray-600 mt-2">
+                Hay cambios no guardados. ¿Estás seguro de que quieres salir sin guardar?
+              </p>
+            </div>
+            <div className="flex justify-end px-6 py-4 border-t space-x-4">
+              <button
+                onClick={() => setIsConfirmOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300 transition-all duration-300"
+              >
+                No
+              </button>
+              <button
+                onClick={handleDiscardChanges}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-all duration-300"
+              >
+                Sí
+              </button>
             </div>
           </div>
         </div>

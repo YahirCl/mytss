@@ -10,7 +10,7 @@ export default function Card_Publication({info} : {info : Publication}) {
   return (
     <article className='bg-white rounded-md w-[60%] text-black my-3'>
       <div className='p-3'>
-        <Card_Profile name={usuario.nombreUsuario} date={usuario.fechaRegistro}/>
+        <Card_Profile name={usuario.nombreUsuario} img={usuario.avatarUrl} date={usuario.fechaRegistro}/>
         <p>{contenido}</p>
       </div>
 
