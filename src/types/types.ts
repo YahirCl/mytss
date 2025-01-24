@@ -33,12 +33,15 @@ interface UserData {
     coverUrl: string | null;
     siguiendo: number;
     seguidores: number;
+    interacciones: Interactions[];
+    likedPublications: Set<number>;
 }
 
 interface Publication {
     id: number;
     usuarioId: number;
-    contenido: string; 
+    contenido: string;
+    emocion: string;
     fechaPublicacion: string; 
     likes: number;
     reposts: number;
@@ -49,12 +52,12 @@ interface Publication {
 
 interface Interactions {
     id: number;
-    userId: number;
-    publicationId: number;
-    typeInteraction: string;
-    interactionDate: string;
-    user: UserData;
-    publication: Publication;
+    usuarioId: number;
+    publicacionId: number;
+    tipoInteraccion: string;
+    fechaInteraccion: string;
+    usuario: UserData;
+    publicacion: Publication;
 }
 
 interface Follower {

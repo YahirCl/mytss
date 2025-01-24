@@ -122,7 +122,7 @@ const Modal: React.FC = () => {
         className="flex items-center gap-2 px-4 py-2 font-medium rounded-lg text-white bg-blue-500 hover:bg-blue-600 transition-all duration-300"
       >
         <Image
-          src="/images/edit-1-svgrepo-com.svg"
+          src="/images/edit.svg"
           alt="Ícono de editar"
           width={25}
           height={20}

@@ -35,7 +35,7 @@ export default function Header() {
 
         <search className='bg-slate-50 flex flex-row rounded-full px-3 py-1 gap-2'>
             <Image
-                src="/images/search-svgrepo-com.svg" // Ruta en la carpeta public
+                src="/images/search.svg" // Ruta en la carpeta public
                 alt="Un ícono SVG"
                 width={20}
                 height={20}
@@ -46,7 +46,7 @@ export default function Header() {
         <div className='flex flex-row justify-center pr-60 gap-6'>
             <button onClick={ () => { router.push('/dashboard') } }>
             <Image 
-                src="/images/home-1-svgrepo-com.svg" // Ruta en la carpeta public
+                src="/images/home.svg" // Ruta en la carpeta public
                 alt="Un ícono SVG"
                 width={30}
                 height={20}
@@ -54,14 +54,14 @@ export default function Header() {
             </button>
                 <button onClick={ () => { router.push('/profile') } }>
                 <Image 
-                src="/images/profile-round-1342-svgrepo-com.svg" // Ruta en la carpeta public
+                src="/images/profile.svg" // Ruta en la carpeta public
                 alt="Un ícono SVG"
                 width={25}
                 height={20}
             />
             </button>
                 <Image 
-                src="/images/bell-ring-svgrepo-com.svg" // Ruta en la carpeta public
+                src="/images/bell-ring.svg" // Ruta en la carpeta public
                 alt="Un ícono SVG"
                 width={30}
                 height={20}
@@ -71,7 +71,7 @@ export default function Header() {
         <div>
           <button onClick={toggleDropdown}>
             <Image 
-              src="/images/menu-svgrepo-com.svg" // Ruta en la carpeta public
+              src="/images/menu.svg" // Ruta en la carpeta public
               alt="Un ícono SVG"
               width={30}
               height={20}

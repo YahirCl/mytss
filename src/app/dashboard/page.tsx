@@ -10,7 +10,7 @@ import Card_Publication from './Card_Publication';
 export default function Page() {
   const { userData } = useAuth();
 
-  const [selectedEmotion, setSelectedEmotion] = useState(null);
+  const [selectedEmotion, setSelectedEmotion] = useState<{emoji: string, label: string} | null>(null);
   const [publicationInput, setPublicationInput] = useState('');
   const [publications, setPublications] = useState<Publication[]>([]);
 
@@ -43,13 +43,36 @@ export default function Page() {
     getPublications();
   }, [userData?.uid])
 
-  const handleEmotionClick = (emoji, label) => {
+  const handleEmotionClick = (emoji: string, label: string) => {
     if (selectedEmotion?.emoji === emoji) {
       setSelectedEmotion(null);
     } else {
       setSelectedEmotion({ emoji, label });
     }
   };
+
+  async function pressedLike(id: number, isLiked: boolean){
+    try {
+      const res = await fetch('/api/pub/like', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pubId: id,
+          userId: userData?.id,
+          isLiked: isLiked
+        }),
+      });
+
+      const resJSON = await res.json();
+
+      console.log(resJSON.message);
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   async function makePublication() {
     try {
@@ -60,7 +83,8 @@ export default function Page() {
         },
         body: JSON.stringify({
           userID: userData?.id,
-          content: publicationInput
+          content: publicationInput,
+          emocion: selectedEmotion?.label
         }),
       });
 
@@ -82,7 +106,7 @@ export default function Page() {
       <main className='flex flex-col items-center bg-slate-100 text-black'>
         <section className='border-[1.8px] border-black p-5 rounded-md w-[60%] mt-5'>
           <div className='flex'>
-            <Card_Profile name={userData?.nombreUsuario} img={userData?.avatarUrl} />
+            <Card_Profile name={userData?.nombreUsuario} img={userData?.avatarUrl as string} />
             {selectedEmotion && (
               <p className='text-gray-500 font-bold text-sm mt-[6px] ml-2'>Me siento con: <span className='bg-blue-100 p-2 rounded-full'>{selectedEmotion.emoji} {selectedEmotion.label}</span></p>
             )}
@@ -111,15 +135,22 @@ export default function Page() {
               })}
             </div>
 
-            <button className='bg-[#4B90E2] px-4 py-2 rounded-full text-white hover:bg-blue-500'
-              onClick={makePublication}>
+            <button
+              className={`px-4 py-2 rounded-full text-white ${
+                (publicationInput !== '' || selectedEmotion !== null) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400'
+              }`}
+              disabled={(publicationInput === '' && selectedEmotion === null)}
+              onClick={makePublication}
+            >
               Publicar
             </button>
+
           </div>
         </section>
         {publications.map((pub, index) => {
+          const isLiked = userData?.likedPublications.has(pub.id);
           return (
-            <Card_Publication key={index} info={pub}/>
+            <Card_Publication key={index} info={pub} isLiked={isLiked as boolean} onPressLike={pressedLike}/>
           )
         })}
       </main>

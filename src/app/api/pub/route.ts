@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     const pub = await prisma.publicacion.create({
       data: {
         contenido: data.content,
+        emocion: data.emocion,
         usuarioId: data.userID
       },
       include: {usuario: true}
