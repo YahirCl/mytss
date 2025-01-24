@@ -33,7 +33,8 @@ model Usuario {
 model Publicacion {
   id               Int            @id @default(autoincrement())
   usuarioId        Int            @map("usuario_id")
-  contenido        String
+  contenido        String         @default("")
+  emocion          String         @default("")
   fechaPublicacion DateTime       @default(now()) @map("fecha_publicacion")
   likes            Int            @default(0)
   reposts          Int            @default(0)
@@ -49,6 +50,8 @@ model Interaccion {
   fechaInteraccion DateTime  @default(now()) @map("fecha_interaccion")
   usuario          Usuario   @relation(fields: [usuarioId], references: [id])
   publicacion      Publicacion @relation(fields: [publicacionId], references: [id])
+
+  @@unique(name: "usuarioId_publicacionId", [usuarioId, publicacionId])
 }
 
 model Seguidor {

@@ -32,7 +32,9 @@ export async function GET(request: NextRequest) {
         if (uid) {
         const usuario = await prisma.usuario.findUnique({
             where: { uid: uid },
+            include: {interacciones: true}
         });
+
 
         if (!usuario) {
             return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });

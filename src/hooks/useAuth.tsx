@@ -15,6 +15,7 @@ const AuthContext = createContext<UserContextType>({ user: null, userData: null,
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const storage = getStorage();
+
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [initializing, setInitializing] = useState(true);
@@ -38,8 +39,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           });
 
           if (response.ok) {
-            const data = await response.json();
-            let imgUserURL = '/images/profile-round-1342-svgrepo-com.svg';
+            const data = await response.json() as UserData;
+
+            //Comprobar las publicaciones con likes
+            const likedPublications = new Set(data.interacciones.filter(({tipoInteraccion}) => tipoInteraccion === 'LIKE').map(({publicacionId}) => publicacionId));
+
+            let imgUserURL = '/images/default-user.png';
             let imgCoverURL = '/images/default-cover.png';
 
             if(data.avatarUrl !== null) {
@@ -50,7 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
 
 
-            setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
+            setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL, likedPublications: likedPublications});
           } else {
             console.error("Error al obtener la información adicional del usuario");
           }
