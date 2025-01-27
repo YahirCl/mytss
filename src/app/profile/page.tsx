@@ -22,7 +22,8 @@ export default function Perfil() {
   return (
     <ProtectedRoute>
       <Header />
-      <main className="h-screen bg-slate-100">
+      <main className="min-h-screen bg-slate-100 flex flex-col">
+
         {/* Encabezado del perfil */}
         <header className="h-[70vh] flex flex-col items-center bg-white">
           <Image
