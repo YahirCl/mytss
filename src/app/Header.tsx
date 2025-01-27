@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { auth } from '../../firebase-config';
@@ -9,12 +9,13 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
   const router = useRouter();
 
   const [isOpenDropDown, setIsOpenDropDown] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [querySearchUser, setQuerySearchUser] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resultUsers, setResultUsers] = useState<ResultUser[]>([]);
   const dropdownRef = useRef(null);
   const resultUsersRef = useRef(null);
-
+  const modalRef = useRef(null);
 
   const fetchUsers = async (searchQuery: string) => {
     if (searchQuery.trim() === "") return;
@@ -36,22 +37,22 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
   const debouncedFetchResults = useCallback(debounce(fetchUsers, 700), []);
 
   useEffect(() => {
-    // Agregar evento al hacer clic
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      // Eliminar evento al desmontar
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
 
-  // Función para cerrar el menú si haces clic fuera de él
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsOpenDropDown(false);
     }
     if (resultUsersRef.current && !resultUsersRef.current.contains(event.target)) {
       setQuerySearchUser("");
+    }
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      setIsModalOpen(false);
     }
   };
 
@@ -67,11 +68,15 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
       setResultUsers([]); // Limpiar resultados
     }
   };
-
   
   const toggleDropdown = (event) => {
     event.stopPropagation();                                                                                                                                    
     setIsOpenDropDown(!isOpenDropDown);
+  };
+
+  const toggleModal = (event) => {
+    event.stopPropagation();
+    setIsModalOpen(!isModalOpen);
   };
 
   return (
@@ -92,22 +97,22 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
         </search>
 
         <div className='flex flex-row justify-center pr-60 gap-6'>
-            <button onClick={ () => { router.push('/dashboard') }} className={route === "HOME" ? 'bg-blue-100 rounded-full p-2' : ''}>
+          <button onClick={ () => { router.push('/dashboard') }} className={route === "HOME" ? 'bg-blue-100 rounded-full p-2' : ''}>
             <Image 
-                src={route === "HOME" ? "/images/home-fill-blue.svg" : "/images/home-fill.svg"} // Ruta en la carpeta public
-                alt="Un ícono SVG"
-                width={20}
-                height={20}
-            />
-            </button>
-                <button onClick={ () => { router.push(`/profile/${auth.currentUser?.uid}`) } } className={route === "PROFILE" ? 'bg-blue-100 rounded-full p-2' : ''}>
-                <Image 
-                src={route === "PROFILE" ? "/images/user-fill-blue.svg" : "/images/user-fill.svg"} // Ruta en la carpeta public
-                alt="Un ícono SVG"
-                width={16}
-                height={16}
-            />
-            </button>
+              src={route === "HOME" ? "/images/home-fill-blue.svg" : "/images/home-fill.svg"} // Ruta en la carpeta public
+              alt="Un ícono SVG"
+              width={20}
+              height={20}
+          />
+          </button>
+          <button onClick={ () => { router.push(`/profile/${auth.currentUser?.uid}`) } } className={route === "PROFILE" ? 'bg-blue-100 rounded-full p-2' : ''}>
+            <Image 
+              src={route === "PROFILE" ? "/images/user-fill-blue.svg" : "/images/user-fill.svg"} // Ruta en la carpeta public
+              alt="Un ícono SVG"
+              width={16}
+              height={16}
+          />
+          </button>
         </div>
 
         <div className='flex gap-4 mr-1'>
@@ -171,8 +176,68 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
             )}
           </div>
         )}
+
+        {/* Modal de notificaciones */}
+      {isModalOpen && (
+        <div
+          className="absolute right-3 top-16 w-80 bg-white shadow-xl rounded-lg p-4"
+          ref={modalRef}
+        >
+          <h3 className="font-bold text-lg text-gray-800 mb-3">
+            Notificaciones
+          </h3>
+          <ul className="space-y-2">
+            <li className="p-3 bg-gray-50 rounded-lg flex items-center gap-3 hover:bg-gray-100 cursor-pointer">
+              <div className="bg-blue-100 p-2 rounded-full">
+                <Image
+                  src="/images/prueba1.jpg"
+                  alt="Icono usuario"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  Nueva solicitud de amistad
+                </p>
+                <p className="text-xs text-gray-500">Hace 5 minutos</p>
+              </div>
+            </li>
+            <li className="p-3 bg-gray-50 rounded-lg flex items-center gap-3 hover:bg-gray-100 cursor-pointer">
+              <div className="bg-green-100 p-2 rounded-full">
+                <Image
+                 src="/images/prueba1.jpg"
+                  alt="Icono mensaje"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  Comento en tu publicación
+                </p>
+                <p className="text-xs text-gray-500">Hace 2 horas</p>
+              </div>
+            </li>
+            <li className="p-3 bg-gray-50 rounded-lg flex items-center gap-3 hover:bg-gray-100 cursor-pointer">
+              <div className="bg-yellow-100 p-2 rounded-full">
+                <Image
+                  src="/images/prueba1.jpg"
+                  alt="Icono alerta"
+                  width={20}
+                  height={20}
+                />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  Le gusta tu publicación
+                </p>
+                <p className="text-xs text-gray-500">Hace 1 día</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      )}
     </header>
-  )
+  );
 }
-
-
