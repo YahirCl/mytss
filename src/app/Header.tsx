@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { auth } from '../../firebase-config';
@@ -116,7 +116,7 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
         </div>
 
         <div className='flex gap-4 mr-1'>
-          <button onClick={toggleDropdown} className='bg-blue-600 rounded-full p-2'>
+          <button onClick={toggleModal} className='bg-blue-600 rounded-full p-2'>
             <Image 
               src="/images/bell-outline.svg" // Ruta en la carpeta public
               alt="Un ícono SVG"

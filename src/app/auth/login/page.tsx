@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import Logo from "../../../../public/images/logo1.png";
+import Logo from "../../../../public/images/logo.png";
 import Link from "next/link";
 import MyInput from "../MyInput";
 import { auth } from "../../../../firebase-config";
