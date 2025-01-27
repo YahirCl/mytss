@@ -68,3 +68,10 @@ interface Follower {
     follower: UserData;
     followedBy: UserData;
 }
+
+interface ResultUser {
+    uid: string;
+    nombreUsuario: string;
+    avatarUrl: string;
+    coverUrl: string;
+}

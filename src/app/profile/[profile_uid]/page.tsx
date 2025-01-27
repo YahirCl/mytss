@@ -3,13 +3,20 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import Header from '../Header';
-import ProtectedRoute from '../ProtectedRoute';
+import { useParams } from 'next/navigation';
+import Header from '../../Header';
+import ProtectedRoute from '../../ProtectedRoute';
 import Image from 'next/image';
-import Modal from './Modal';
+import Modal from '../Modal';
 
-export default function Perfil() {
+export default function Page() {
   const { userData } = useAuth();
+  const params = useParams();
+  
+  const { uid } = params;
+
+  console.log(uid);
+
   const [activeTab, setActiveTab] = useState('publicaciones'); // Estado para manejar la pestaña activa
 
   // Datos de ejemplo para la sección de información
@@ -21,8 +28,8 @@ export default function Perfil() {
 
   return (
     <ProtectedRoute>
-      <Header />
-      <main className="h-screen bg-slate-100">
+      <Header route='PROFILE'/>
+      <main className="min-h-screen bg-slate-100 flex flex-col text-black">
         {/* Encabezado del perfil */}
         <header className="h-[70vh] flex flex-col items-center bg-white">
           <Image
@@ -83,7 +90,7 @@ export default function Perfil() {
         </header>
 
         {/* Contenido dinámico según la pestaña activa */}
-        <section className="w-[60%] mx-auto mt-5">
+        <section className="w-[60%] mx-auto mt-5 mb-5">
           {activeTab === 'publicaciones' && (
             <div className="bg-white p-5 rounded-lg shadow">
               <h2 className="text-lg font-bold mb-4">Publicaciones</h2>

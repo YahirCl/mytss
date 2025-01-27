@@ -102,7 +102,7 @@ export default function Page() {
 
   return (
     <ProtectedRoute>
-      <Header/>
+      <Header route='HOME'/>
       <main className='flex flex-col items-center bg-slate-100 text-black'>
         <section className='border-[1.8px] border-black p-5 rounded-md w-[60%] mt-5'>
           <div className='flex'>
