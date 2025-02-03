@@ -6,9 +6,13 @@ import Header from '../Header';
 import Card_Profile from './Card_Profile';
 import { useAuth } from '@/hooks/useAuth';
 import Card_Publication from './Card_Publication';
+import Loading from '../Loading';
+import { useRouter } from 'next/navigation';
 
 export default function Page() {
+  const router = useRouter();
   const { userData } = useAuth();
+  const [isLoading, setIsLoading] = useState(true)
 
   const [selectedEmotion, setSelectedEmotion] = useState<{emoji: string, label: string} | null>(null);
   const [publicationInput, setPublicationInput] = useState('');
@@ -25,9 +29,10 @@ export default function Page() {
   ];
 
   useEffect(() => {
+    console.log("Voy a empezar a cargar las publicaciones");
     async function getPublications() {
       try {
-        const res = await fetch(`/api/pub`, {
+        const res = await fetch(`/api/pub?id=${userData?.id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -35,6 +40,7 @@ export default function Page() {
         });
         
         setPublications(await res.json());
+        setIsLoading(false);
       } catch (error) {
         console.error(error);
       }
@@ -100,13 +106,17 @@ export default function Page() {
     }
   }
 
+  if(isLoading) {
+    return <Loading />
+  }
+
   return (
     <ProtectedRoute>
       <Header route='HOME'/>
       <main className='flex flex-col items-center bg-slate-100 text-black'>
         <section className='border-[1.8px] border-black p-5 rounded-md w-[60%] mt-5'>
           <div className='flex'>
-            <Card_Profile name={userData?.nombreUsuario} img={userData?.avatarUrl as string} />
+            <Card_Profile data={{name: userData?.nombreUsuario, img: userData?.avatarUrl as string}} />
             {selectedEmotion && (
               <p className='text-gray-500 font-bold text-sm mt-[6px] ml-2'>Me siento con: <span className='bg-blue-100 p-2 rounded-full'>{selectedEmotion.emoji} {selectedEmotion.label}</span></p>
             )}
@@ -148,9 +158,12 @@ export default function Page() {
           </div>
         </section>
         {publications.map((pub, index) => {
-          const isLiked = userData?.likedPublications.has(pub.id);
+          const yourInteractions = pub.interacciones as string[];
+          const isLiked = yourInteractions.includes("LIKE");
           return (
-            <Card_Publication key={index} info={pub} isLiked={isLiked as boolean} onPressLike={pressedLike}/>
+            <div key={index} className='w-[60%]'>
+              <Card_Publication infoPublication={pub} infoCreator={pub.usuario} isLiked={isLiked} onPressLike={pressedLike} onClickUser={(uid) => router.push(`/profile/${uid}`)}/>
+            </div>
           )
         })}
       </main>

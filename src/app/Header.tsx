@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { auth } from '../../firebase-config';
+import { auth } from '../libs/firebase-config';
 import { debounce } from '@/utils/debounce';
 import SearchUserCard from './dashboard/SearchUserCard';
 
-export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
+export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
   const router = useRouter();
 
   const [isOpenDropDown, setIsOpenDropDown] = useState(false);
@@ -23,7 +23,7 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE'}) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/search?q=${searchQuery}&uid=${auth.currentUser?.uid}`);
+      const response = await fetch(`/api/search/simpleUser?q=${searchQuery}&uid=${auth.currentUser?.uid}`);
       const data = await response.json();
 
       setResultUsers(data);

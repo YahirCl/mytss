@@ -5,7 +5,7 @@ import Image from "next/image";
 import Logo from "../../../../public/images/logo.png";
 import Link from "next/link";
 import MyInput from "../MyInput";
-import { auth } from "../../../../firebase-config";
+import { auth } from "../../../libs/firebase-config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
@@ -64,6 +64,7 @@ export default function Page() {
         formInfo.email,
         formInfo.password
       );
+      console.log('Logueo del usuario completado');
       alert(
         "Usuario logeado correctamente: " + userCredentials.user.email
       );

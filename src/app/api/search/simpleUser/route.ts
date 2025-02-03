@@ -28,7 +28,6 @@ export async function GET(request: NextRequest) {
             select: {
               uid: true,
               avatarUrl: true,
-              coverUrl: true,
               nombreUsuario: true
             },
         });

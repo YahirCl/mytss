@@ -1,3 +1,4 @@
+import { verifyToken } from '@/libs/authMiddleware';
 import { prisma } from '@/libs/db';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -24,30 +25,60 @@ export async function POST(request: NextRequest) {
 
 // Obtener un usuario por UID
 export async function GET(request: NextRequest) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const uid = searchParams.get('uid');
+  try {
+    const authResponse = await verifyToken(request);
+    if (authResponse) return authResponse;
 
-        // Buscar por ID si se proporciona
-        if (uid) {
-        const usuario = await prisma.usuario.findUnique({
-            where: { uid: uid },
-            include: {interacciones: true}
-        });
+    const { searchParams } = new URL(request.url);
+    const id = parseInt(searchParams.get('id') as string);
+    const uid = searchParams.get('uid');
 
-
-        if (!usuario) {
-            return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });
+    if (id) {
+      //Search for ID, getting your remaining information
+      const rI = await prisma.publicacion.findMany({
+        where: {usuarioId: id},
+        select: {
+          id: true,
+          contenido: true,
+          emocion: true,
+          fechaPublicacion: true,
+          likes: true,
+          reposts: true,
+          interacciones: {
+            where: {usuarioId: id},
+            select: {tipoInteraccion: true},
+          }
         }
+      });
 
-        return NextResponse.json(usuario);
-        }
+      const formattedPublications = rI.map(pub => ({
+        ...pub,
+        interacciones: pub.interacciones.map(i => i.tipoInteraccion)
+      }));
 
-        // Si no se proporciona ni ID ni email
-        return NextResponse.json({ message: 'Se requiere un parámetro de búsqueda (uid)' }, { status: 400 });
-    } catch (error) {
-        return NextResponse.json({ message: 'Error al buscar usuario', error: error.message }, { status: 500 });
+      if (!rI) {
+        return NextResponse.json({ message: 'No se encontraron publicaciones de este Usuario' }, { status: 404 });
+      }
+      
+      return NextResponse.json(formattedPublications);
+    } else if (uid) {
+      //Search for UID, getting your necessary information
+      const usuario = await prisma.usuario.findUnique({
+        where: { uid: uid },
+      });
+
+      if (!usuario) {
+          return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });
+      }
+      
+      return NextResponse.json(usuario);
     }
+
+    // Si no se proporciona ni ID ni email
+    return NextResponse.json({ message: 'Se requiere un parámetro de búsqueda (uid)' }, { status: 400 });
+  } catch (error) {
+    return NextResponse.json({ message: 'Error al buscar usuario', error: error.message }, { status: 500 });
+  }
 }
   
 

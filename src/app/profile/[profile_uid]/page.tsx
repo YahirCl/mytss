@@ -1,23 +1,110 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useParams } from 'next/navigation';
 import Header from '../../Header';
 import ProtectedRoute from '../../ProtectedRoute';
 import Image from 'next/image';
 import Modal from '../Modal';
+import Loading from '@/app/Loading';
+import FollowButton from '../FollowButton';
+import Card_Publication from '@/app/dashboard/Card_Publication';
 
 export default function Page() {
-  const { userData } = useAuth();
   const params = useParams();
-  
-  const { uid } = params;
+  const { profile_uid } = params;
+  const { userData, userToken } = useAuth();
+  const own = profile_uid === userData?.uid;
 
-  console.log(uid);
+  const [isLoadingScreen, setIsLoadingScreen] = useState(true);
+  const [btnLoading, setBtnLoading] = useState(false);
 
+  const [profileData, setProfileData] = useState<UserData>();
+  const [followedBtn, setFollowedBtn] = useState(false);
   const [activeTab, setActiveTab] = useState('publicaciones'); // Estado para manejar la pestaña activa
+
+
+  useEffect(() => {
+    async function getCompleteUserData() {
+      if(!own) {
+        const response = await fetch(`/api/search/completeUser?uid=${userData?.uid}&id=${userData?.id}&uidToSearch=${profile_uid}`,{
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+
+        //console.log(data);
+        setProfileData(data.usuario as UserData);
+        setFollowedBtn(data.followed as boolean);
+        setIsLoadingScreen(false);
+      } else {
+        //Get your remaining information
+        const response = await fetch(`/api/auth?id=${userData?.id}`,{
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userToken}`
+
+          },
+        });
+
+        const data = await response.json();
+        setProfileData({...userData as UserData, publicaciones: data});
+        setIsLoadingScreen(false);
+      }
+    }
+
+    getCompleteUserData();
+  }, [own, profile_uid, userData]);
+
+  async function followUser() {
+    setBtnLoading(true);
+    try {
+      const response = await fetch(`/api/follow`,{
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uid: profile_uid,
+          uidFollower: userData?.uid, 
+          isFollowed: followedBtn
+        }),
+      });
+
+      console.log(await response.json());
+      setFollowedBtn(!followedBtn);
+    } finally {
+      setBtnLoading(false);
+    }
+  }
+
+  async function pressedLike(id: number, isLiked: boolean){
+    try {
+      const res = await fetch('/api/pub/like', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pubId: id,
+          userId: userData?.id,
+          isLiked: isLiked
+        }),
+      });
+
+      const resJSON = await res.json();
+
+      console.log(resJSON.message);
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   // Datos de ejemplo para la sección de información
   const informacion = [
@@ -26,14 +113,18 @@ export default function Page() {
     { icon: '🔒', label: 'Contraseña', value: userData?.contrasena || 'Contraseña no disponible' },
   ];
 
+  if(isLoadingScreen) {
+    return <Loading />
+  }
+
   return (
     <ProtectedRoute>
-      <Header route='PROFILE'/>
+      <Header route={own ? 'PROFILE': 'NON'}/>
       <main className="min-h-screen bg-slate-100 flex flex-col text-black">
         {/* Encabezado del perfil */}
         <header className="h-[70vh] flex flex-col items-center bg-white">
           <Image
-            src={userData?.coverUrl as string}
+            src={profileData?.coverUrl ? profileData.coverUrl : '/images/default-cover.png'}
             alt="Imagen de fondo de perfil"
             width={1300}
             height={200}
@@ -42,23 +133,30 @@ export default function Page() {
           <div className="flex flex-col w-[60%] h-[100%] px-5">
             <div className="flex border-b-2 border-gray">
               <Image
-                src={userData?.avatarUrl as string}
+                src={profileData?.avatarUrl ? profileData.avatarUrl : '/images/default-user.png'}
                 alt="Imagen de Usuario"
                 width={210}
                 height={0}
-                className="rounded-full mt-[-60px] mb-5 max-h-44"
+                className="rounded-full mt-[-60px] mb-5 max-h-44 max-w-40"
               />
               <div className="p-5 w-full">
-                <h1 className="text-4xl font-bold">{userData?.nombreUsuario}</h1>
+                <h1 className="text-4xl font-bold">{profileData?.nombreUsuario}</h1>
                 <div className="flex gap-5">
                   <h5 className="text-gray-500">
-                    <span className="font-bold text-black">60</span> Seguidores
+                    <span className="font-bold text-black">{profileData?.seguidores}</span> Seguidores
                   </h5>
                   <h5 className="text-gray-500">
-                    <span className="font-bold text-black">35</span> Siguiendo
+                    <span className="font-bold text-black">{profileData?.siguiendo}</span> Siguiendo
                   </h5>
                   <div className="w-full flex justify-end">
-                    <Modal />
+                    {own ? 
+                    (<Modal />) 
+                    : 
+                    (
+                      <FollowButton followed={followedBtn} loading={btnLoading} onClick={followUser}/>
+                    )
+                    }
+                    
                   </div>
                 </div>
               </div>
@@ -92,9 +190,17 @@ export default function Page() {
         {/* Contenido dinámico según la pestaña activa */}
         <section className="w-[60%] mx-auto mt-5 mb-5">
           {activeTab === 'publicaciones' && (
-            <div className="bg-white p-5 rounded-lg shadow">
+            <div className="bg-white p-5 rounded-lg shadow flex flex-col gap-1">
               <h2 className="text-lg font-bold mb-4">Publicaciones</h2>
-              <p>Aquí se mostrarán las publicaciones del usuario.</p>
+              {profileData?.publicaciones.map((pub, index) => {
+                const yourInteractions = pub.interacciones as string[];
+                const isLiked = yourInteractions.includes("LIKE");
+                return (
+                  <div key={index} className='w-[60%]'>
+                    <Card_Publication infoPublication={pub} infoCreator={profileData} isLiked={isLiked} onPressLike={pressedLike} onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}/>
+                  </div>
+                )
+              })}
             </div>
           )}
           {activeTab === 'informacion' && (

@@ -33,8 +33,9 @@ interface UserData {
     coverUrl: string | null;
     siguiendo: number;
     seguidores: number;
+    publicaciones: Publication[];
+    seguidoresList: Follower[]
     interacciones: Interactions[];
-    likedPublications: Set<number>;
 }
 
 interface Publication {
@@ -46,7 +47,7 @@ interface Publication {
     likes: number;
     reposts: number;
     usuario: UserData;
-    interactions?: Interactions;
+    interacciones?: Interactions[] | string[];
   }
   
 
@@ -62,16 +63,15 @@ interface Interactions {
 
 interface Follower {
     id: number;
-    followerId: number;
-    followedById: number;
-    followDate: string;
-    follower: UserData;
-    followedBy: UserData;
+    seguidorId: number;
+    seguidoId: number;
+    fechaSeguimiento: string;
+    seguidor: UserData;
+    seguido: UserData;
 }
 
 interface ResultUser {
     uid: string;
     nombreUsuario: string;
     avatarUrl: string;
-    coverUrl: string;
 }

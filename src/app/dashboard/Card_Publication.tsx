@@ -4,15 +4,17 @@ import Card_Profile from './Card_Profile';
 import Image from 'next/image';
 
 
-export default function Card_Publication({info, isLiked, onPressLike} : {info : Publication, isLiked: boolean, onPressLike: (id: number, isLiked: boolean) => void}) {
+export default function Card_Publication({infoPublication, infoCreator, isLiked, onPressLike, onClickUser} : {infoPublication : Publication, infoCreator: UserData, isLiked: boolean, onPressLike: (id: number, isLiked: boolean) => void, onClickUser: (uid: string) => void}) {
 
-  const {contenido, usuario, emocion, fechaPublicacion, id} = info;
+  const {contenido, emocion, fechaPublicacion, id} = infoPublication;
   const [liked, setLiked] = useState(isLiked);
   
   return (
-    <article className='bg-white rounded-md w-[60%] text-black my-3'>
+    <article className='bg-white rounded-md w-[100%] text-black my-3'>
       <div className='p-3 '>
-        <Card_Profile name={usuario.nombreUsuario} img={usuario.avatarUrl as string} emocion={emocion} date={fechaPublicacion}/>
+        <Card_Profile data={{name: infoCreator.nombreUsuario, img: infoCreator.avatarUrl as string, date: fechaPublicacion, emocion: emocion}} onClickUser={() => {
+          onClickUser(infoCreator.uid);
+        }}/>
         <p className='ml-2 mt-3'>{contenido}</p>
       </div>
 

@@ -11,7 +11,7 @@ export default function SearchUserCard({data, onClick} : {data : ResultUser, onC
           alt='Imagen de usuario'
           width={60}
           height={60}
-          src={data.avatarUrl !== null ? data.avatarUrl : "/images/default-user.png"}
+          src={data.avatarUrl ? data.avatarUrl : "/images/default-user.png"}
           className='rounded-full'
         />
         <h5 className='font-bold text-sm'>{data.nombreUsuario}</h5>

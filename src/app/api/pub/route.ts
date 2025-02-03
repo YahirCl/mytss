@@ -20,18 +20,46 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     try {
-        // Buscar por ID si se proporciona
-        const publications = await prisma.publicacion.findMany({
-            include: {usuario: true}
+      const { searchParams } = new URL(request.url);
+      const yourId = parseInt(searchParams.get('id') as string);
+      // Buscar por ID si se proporciona
+      const publications = await prisma.publicacion.findMany({
+        select: {
+          id: true,
+          contenido: true,
+          emocion: true,
+          fechaPublicacion: true,
+          likes: true,
+          reposts: true,
+          usuario: {
+            select: {
+              uid: true,
+              nombreUsuario: true,
+              avatarUrl: true,
+              siguiendo: true,
+              seguidores: true,
+            }
+          },
+          interacciones: {
+            where: {usuarioId: yourId},
+            select: {tipoInteraccion: true},
+
+          }
+        },
         });
 
         if (!publications) {
-            return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });
+            return NextResponse.json({ message: 'Publicaciones no encontrado' }, { status: 404 });
         }
 
-        return NextResponse.json(publications);
+        const formattedPublications = publications.map(pub => ({
+          ...pub,
+          interacciones: pub.interacciones.map(i => i.tipoInteraccion)
+        }));
+
+        return NextResponse.json(formattedPublications);
 
 
         // Si no se proporciona ni ID ni email

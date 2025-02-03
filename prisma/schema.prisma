@@ -55,12 +55,12 @@ model Interaccion {
 }
 
 model Seguidor {
-  id              Int       @id @default(autoincrement())
-  seguidorId      Int       @map("seguidor_id")
-  seguidoId       Int       @map("seguido_id")
-  fechaSeguimiento DateTime @default(now()) @map("fecha_seguimiento")
-  seguidor        Usuario   @relation("Seguidos", fields: [seguidorId], references: [id])
-  seguido         Usuario   @relation("Seguidores", fields: [seguidoId], references: [id])
+  id               Int          @id @default(autoincrement())
+  seguidorUid      String       @map("seguidor_uid")
+  seguidoUid       String       @map("seguido_uid")
+  fechaSeguimiento DateTime     @default(now()) @map("fecha_seguimiento")
+  seguidor         Usuario      @relation("Seguidos", fields: [seguidorUid], references: [uid])
+  seguido          Usuario      @relation("Seguidores", fields: [seguidoUid], references: [uid])
 
-  @@unique([seguidorId, seguidoId])
+  @@unique(name: "seguidorUid_seguidoUid", [seguidorUid, seguidoUid])
 }

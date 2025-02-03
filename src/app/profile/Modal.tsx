@@ -10,8 +10,8 @@ const Modal: React.FC = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false); // Estado para abrir la modal de confirmación
 
   const [images, setImages] = useState({
-    profileImage: userData?.avatarUrl as string,
-    coverImage: userData?.coverUrl as string
+    profileImage: userData?.avatarUrl ? userData.avatarUrl : null,
+    coverImage: userData?.coverUrl ? userData.coverUrl : null
   })
 
   const [newImages, setNewImages] = useState<{
@@ -106,6 +106,7 @@ const Modal: React.FC = () => {
 
       updateUserData({...userData, avatarUrl:  urlProfile, coverUrl: urlCover} as UserData);
       alert("Fotos actualizadas correctamente");
+      setImages({profileImage: urlProfile as string, coverImage: urlCover as string});
       setNewImages({coverImage: null, profileImage: null});
       setIsOpen(!isOpen);
 
@@ -140,7 +141,7 @@ const Modal: React.FC = () => {
             <div className="px-6 py-4 space-y-6">
               <div className="flex items-center gap-4">
                 <Image
-                  src={images.profileImage}
+                  src={images.profileImage ? images.profileImage : '/images/default-user.png'}
                   alt="Foto de Perfil"
                   width={80}
                   height={80}
@@ -160,7 +161,7 @@ const Modal: React.FC = () => {
 
               <div className="flex items-center gap-4">
                 <Image
-                  src={images.coverImage}
+                  src={images.coverImage ? images.coverImage : '/images/default-cover.png'}
                   alt="Foto de Portada"
                   width={160}
                   height={100}
