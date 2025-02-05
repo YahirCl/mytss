@@ -28,6 +28,7 @@ model Usuario {
   interacciones  Interaccion[]
   seguidos       Seguidor[]     @relation("Seguidos")
   seguidoresList Seguidor[]     @relation("Seguidores")
+  comentarios Comentario[]
 }
 
 model Publicacion {
@@ -40,6 +41,7 @@ model Publicacion {
   reposts          Int            @default(0)
   usuario          Usuario        @relation(fields: [usuarioId], references: [id])
   interacciones    Interaccion[]
+  comentarios Comentario[]
 }
 
 model Interaccion {
@@ -52,6 +54,16 @@ model Interaccion {
   publicacion      Publicacion @relation(fields: [publicacionId], references: [id])
 
   @@unique(name: "usuarioId_publicacionId", [usuarioId, publicacionId])
+}
+
+model Comentario {
+  id               Int         @id @default(autoincrement())
+  usuarioId        Int         @map("usuario_id")
+  publicacionId    Int         @map("publicacion_id")
+  contenido        String
+  fechaComentario  DateTime    @default(now()) @map("fecha_comentario")
+  usuario          Usuario     @relation(fields: [usuarioId], references: [id])
+  publicacion      Publicacion @relation(fields: [publicacionId], references: [id])
 }
 
 model Seguidor {

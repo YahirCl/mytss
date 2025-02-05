@@ -75,7 +75,7 @@ export default function Page() {
   }
 
   return (
-    <div className="bg-white min-h-screen flex justify-center items-center flex-col">
+    <div className="bg-white min-h-screen flex justify-center items-center flex-col text-black">
       <Image src={Logo} alt="Logo" width={400} height={300} />
 
       <form className="flex flex-col" onSubmit={handleLogin}>
@@ -112,6 +112,14 @@ export default function Page() {
         <Link href="/auth/register" className="text-blue-500">
           {" "}
           Regístrate
+        </Link>
+      </p>
+
+      <p className="text-black mt-5">
+        ¿Ver el formulario?
+        <Link href="/auth/form" className="text-blue-500">
+          {" "}
+          Click HERE
         </Link>
       </p>
     </div>

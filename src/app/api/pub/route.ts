@@ -11,7 +11,26 @@ export async function POST(request: NextRequest) {
         emocion: data.emocion,
         usuarioId: data.userID
       },
-      include: {usuario: true}
+      select: {
+        id: true,
+        contenido: true,
+        emocion: true,
+        fechaPublicacion: true,
+        likes: true,
+        reposts: true,
+        usuario: {
+          select: {
+            uid: true,
+            nombreUsuario: true,
+            avatarUrl: true,
+          }
+        },
+        interacciones: {
+          where: {usuarioId: data.userID},
+          select: {tipoInteraccion: true},
+        }
+      }
+      
     });
 
     return NextResponse.json({msg: 'Publicación creada Correctamente', pub: pub});

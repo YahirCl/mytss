@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
             setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
           } else {
-            console.error("Error al obtener la información adicional del usuario");
+            setUserData(null);
           }
         } catch (error) {
           console.error("Error en la solicitud:", error);

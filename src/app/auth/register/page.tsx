@@ -114,11 +114,11 @@ export default function page() {
       }
 
       console.log('Registro del usuario completado');
+      auth.signOut();
       
       // Asegurar que los datos estén listos antes de redirigir
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Pequeña espera opcional
 
-      auth.signOut();
       router.replace('/auth/login');
     } catch (error) {
       console.error(error);

@@ -25,6 +25,11 @@ export async function PUT(request: NextRequest) {
             where: { uid: uid },
             data: { seguidores: { decrement: 1 } },
           });
+
+          await prisma.usuario.update({
+            where: { uid: uidFollower },
+            data: { siguiendo: { decrement: 1 } },
+          });
         } else {
 
           // Crear la interacción
@@ -39,6 +44,11 @@ export async function PUT(request: NextRequest) {
           await prisma.usuario.update({
             where: { uid: uid },
             data: { seguidores: { increment: 1 } },
+          });
+
+          await prisma.usuario.update({
+            where: { uid: uidFollower },
+            data: { siguiendo: { increment: 1 } },
           });
           
         }
