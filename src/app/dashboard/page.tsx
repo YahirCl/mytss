@@ -77,9 +77,11 @@ export default function Page() {
       const resJSON = await res.json();
 
       console.log(resJSON.message);
+      return res.ok;
 
     } catch (error) {
       console.log(error);
+      return false;
     }
   }
 

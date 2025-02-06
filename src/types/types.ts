@@ -61,6 +61,16 @@ interface Interactions {
     publicacion: Publication;
 }
 
+interface Comment {
+  id: number;
+  usuarioId: number;
+  publicacionId: number;
+  contenido: string;
+  fechaComentario: string
+  usuario: UserData;      
+  publicacion: Publication;
+}
+
 interface Follower {
     id: number;
     seguidorId: number;
