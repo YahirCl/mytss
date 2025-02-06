@@ -32,24 +32,46 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const publicationId = parseInt(searchParams.get('id') as string);
+    const yourId = parseInt(searchParams.get('yourId') as string);
 
-    const comments = await prisma.comentario.findMany({
-      where: {publicacionId: publicationId},
+    const res = await prisma.publicacion.findUnique({
+      where: {id: publicationId},
       select: {
-        id: true,
         contenido: true,
-        fechaComentario: true,
+        emocion: true,
+        likes: true,
+        reposts: true,
+        fechaPublicacion: true,
         usuario: {
           select: {
             uid: true,
             avatarUrl: true,
             nombreUsuario: true
           }
+        },
+        interacciones: {
+          where: {usuarioId: yourId},
+          select: {tipoInteraccion: true},
+        },
+        comentarios: {
+          select: {
+            id: true,
+            contenido: true,
+            fechaComentario: true,
+            usuario: {
+              select: {
+                uid: true,
+                avatarUrl: true,
+                nombreUsuario: true
+              }
+            },
+          }
         }
       }
     });
 
-    return NextResponse.json(comments);
+
+    return NextResponse.json(res);
 
     // Si no se proporciona ni ID ni email
     //return NextResponse.json({ message: 'Se requiere un parámetro de búsqueda (uid)' }, { status: 400 });

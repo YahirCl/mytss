@@ -48,6 +48,7 @@ interface Publication {
     reposts: number;
     usuario: UserData;
     interacciones?: Interactions[] | string[];
+    comentarios: Comment[];
   }
   
 
