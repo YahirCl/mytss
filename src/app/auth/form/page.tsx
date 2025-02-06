@@ -4,13 +4,6 @@ import { useState } from 'react';
 
 export default function EncuestaForm() {
   const [formData, setFormData] = useState({
-    // Datos personales
-    nombre: '',
-    sexo: '',
-    genero: '',
-    fechaNacimiento: '',
-    profesion: '',
-
     // Vacío Existencial - Parte I (Valores de Creación)
     ...Array.from({ length: 9 }, (_, i) => [`Logo_S1_R${i + 1}_Val`, '']).reduce((acc, [key]) => ({ ...acc, [key]: '' }), {}),
 
@@ -34,24 +27,13 @@ export default function EncuestaForm() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    if (name.startsWith('Expresiones_R') && !name.endsWith('_texto')) {
-      const num = name.split('_')[2];
-      if (value === 'No') {
-        setFormData(prev => ({
-          ...prev,
-          [name]: value,
-          [`Expresiones_R${num}_texto`]: ''
-        }));
-        return;
-      }
-    }
-
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
+
+  
 
   const calcularPuntajeDesesperanza = () => {
     const positivas = [2,4,7,9,11,12,14,16,17,18,20];
@@ -62,12 +44,7 @@ export default function EncuestaForm() {
   };
 
   const validarFormulario = () => {
-    if (!formData.nombre || !formData.fechaNacimiento) return false;
-    
-    return Array.from({ length: 4 }).every((_, i) => {
-      const key = `Expresiones_R${i + 1}`;
-      return formData[key] === 'No' || (formData[key] === 'Sí' && formData[`${key}_texto`].trim().length > 0);
-    });
+    return Object.values(formData).every(val => val !== '');
   };
 
   const handleSubmit = (e) => {
@@ -84,6 +61,7 @@ export default function EncuestaForm() {
       riesgoAlto: puntaje >= 8,
       fecha: new Date().toISOString()
     };
+
 
     console.log({...formData, resultado});
     alert(`Encuesta enviada\nPuntaje de desesperanza: ${puntaje}\nRiesgo alto: ${resultado.riesgoAlto ? 'Sí' : 'No'}`);
@@ -197,77 +175,23 @@ export default function EncuestaForm() {
         {formData[preguntaKey] === 'Sí' && (
           <textarea
             name={textoKey}
-            value={formData[textoKey]}
+            value={formData[textoKey] || ""}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-lg mt-2"
-            rows="3"
-            required
-            placeholder="Describa sus sentimientos en detalle..."
+            className="w-full p-2 border rounded"
+            rows={4}
+            placeholder="Indique su propio caso..."
           />
         )}
       </div>
     );
   };
 
+  
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-white text-black">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-center">Instrumento de Detección Completo</h1>
-
-        {/* Datos Personales */}
-        <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Datos Personales</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="nombre"
-              placeholder="Nombre completo *"
-              className="p-2 border rounded"
-              value={formData.nombre}
-              onChange={handleChange}
-              required
-            />
-            <select
-              name="sexo"
-              className="p-2 border rounded"
-              value={formData.sexo}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Sexo biológico *</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Femenino">Femenino</option>
-            </select>
-            <select
-              name="genero"
-              className="p-2 border rounded"
-              value={formData.genero}
-              onChange={handleChange}
-            >
-              <option value="">Género</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Femenino">Femenino</option>
-              <option value="No binario">No binario</option>
-              <option value="Otro">Otro</option>
-            </select>
-            <input
-              type="date"
-              name="fechaNacimiento"
-              className="p-2 border rounded"
-              value={formData.fechaNacimiento}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="profesion"
-              placeholder="Profesión"
-              className="p-2 border rounded"
-              value={formData.profesion}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
 
         {/* Vacío Existencial - Parte I */}
         <SeccionSelect
@@ -373,24 +297,49 @@ export default function EncuestaForm() {
             </div>
           </div>
 
-        {/* Escala de Desesperanza */}
-        <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Escala de Desesperanza</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {preguntas.desesperanza.map((pregunta, index) => (
-              <label key={index} className="flex items-center p-2 border rounded hover:bg-gray-100">
-                <input
-                  type="checkbox"
-                  name={`Desesp_R${index + 1}`}
-                  checked={formData[`Desesp_R${index + 1}`]}
-                  onChange={handleChange}
-                  className="mr-2"
-                />
-                <span className="text-sm">{index + 1}. {pregunta}</span>
-              </label>
-            ))}
+
+
+                {/* Escala de Desesperanza */}
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-xl font-semibold mb-4">Escala de Desesperanza</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Instrucciones: A continuación, se presentan 20 afirmaciones con respecto a cómo ves tu futuro y percibes tu bienestar. Responde <strong>“Verdadero”</strong> si te sientes identificado con la afirmación y <strong>“Falso”</strong> si no te sientes identificado.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {preguntas.desesperanza.map((pregunta, index) => (
+                <div key={index} className="p-2 border rounded hover:bg-gray-100">
+                  <p className="text-sm mb-2">{index + 1}. {pregunta}</p>
+                  <div className="flex space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name={`Desesp_R${index + 1}`}
+                        value="true"
+                        checked={formData[`Desesp_R${index + 1}`] === "true"}
+                        onChange={handleChange}
+                        className="mr-2"
+                      />
+                      <span className="text-sm">Verdadero</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        name={`Desesp_R${index + 1}`}
+                        value="false"
+                        checked={formData[`Desesp_R${index + 1}`] === "false"}
+                        onChange={handleChange}
+                        className="mr-2"
+                      />
+                      <span className="text-sm">Falso</span>
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+
+
+
 
         {/* Expresiones Personales */}
         <div className="mb-8 p-4 bg-gray-50 rounded-lg">
