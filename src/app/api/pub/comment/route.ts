@@ -5,6 +5,8 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
+    console.log(data);
+
     await prisma.$transaction(async (prisma) => {
       await prisma.comentario.create({
         data: {

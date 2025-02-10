@@ -176,12 +176,13 @@ export default function Page() {
                   <Card_Publication 
                     infoPublication={pub} 
                     infoCreator={pub.usuario}
-                    isLiked={isLiked} 
+                    isLiked={isLiked}
+                    onPressPublication={() => router.push(`publication_complete/${pub.id}`)}
                     onPressLike={pressedLike}
                     onClickUser={(uid) => router.push(`/profile/${uid}`)}/>
                 </div>
               );
-            })}
+            })} 
         </div>
         </main>
       </ProtectedRoute>

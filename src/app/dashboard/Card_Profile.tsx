@@ -21,7 +21,7 @@ const emociones = new Map<string, string>([
 
 
 
-export default function Card_Profile({data, onClickUser}: {data : Props, onClickUser?: () => void}) {
+export default function Card_Profile({data, onClickUser}: {data : Props, onClickUser?: (e: React.MouseEvent<HTMLParagraphElement, MouseEvent>) => void}) {
   const {name, img, date, emocion} = data
   return (
     <div className='flex'>

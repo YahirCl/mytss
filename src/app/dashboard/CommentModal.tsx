@@ -70,11 +70,12 @@ export default function CommentModal({infoPublication, infoCreator, onClickClose
             <button className={`px-4 py-2 rounded-full text-white ${
                 (comment !== '' && !loading) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
               }`}
+              disabled={comment === '' || loading}
               onClick={() => {
+                if (loading) return;
                 setLoading(true);
                 createComment();
               }}
-              disabled={comment == ''}
               >
               {loading ? 'Cargando...' : 'Comentar'}
             </button>

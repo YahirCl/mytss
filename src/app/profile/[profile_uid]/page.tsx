@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Header from '../../Header';
 import ProtectedRoute from '../../ProtectedRoute';
 import Image from 'next/image';
@@ -14,6 +14,8 @@ import Card_Publication from '@/app/dashboard/Card_Publication';
 
 export default function Page() {
   const params = useParams();
+  const router = useRouter();
+
   const { profile_uid } = params;
   const { userData, userToken } = useAuth();
   const own = profile_uid === userData?.uid;
@@ -98,11 +100,12 @@ export default function Page() {
       });
 
       const resJSON = await res.json();
-
       console.log(resJSON.message);
+      return res.ok
 
     } catch (error) {
       console.log(error);
+      return false
     }
   }
 
@@ -197,7 +200,13 @@ export default function Page() {
                 const isLiked = yourInteractions.includes("LIKE");
                 return (
                   <div key={index} className='w-[60%]'>
-                    <Card_Publication infoPublication={pub} infoCreator={profileData} isLiked={isLiked} onPressLike={pressedLike} onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}/>
+                    <Card_Publication
+                      infoPublication={pub}
+                      infoCreator={profileData}
+                      isLiked={isLiked}
+                      onPressPublication={() => router.push(`../publication_complete/${pub.id}`)}
+                      onPressLike={pressedLike} 
+                      onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}/>
                   </div>
                 )
               })}

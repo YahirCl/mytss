@@ -19,8 +19,9 @@ export default function page() {
   const { userData } = useAuth();
 
   const [publication, setPublication] = useState<Publication>();
-  //const [comments, setComments] = useState<Comment[]>([]);
   const [comment, setComment] = useState("");
+
+  const [loading, setLoading] = useState(false);
   const textareaRef = useRef(null);
 
   const handleInput = (e) => {
@@ -29,6 +30,54 @@ export default function page() {
     textarea.style.height = `${textarea.scrollHeight}px`; // Ajusta la altura según el contenido
     setComment(e.target.value);
   };
+
+  async function pressedLike(id: number, isLiked: boolean){
+    try {
+      const res = await fetch('/api/pub/like', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pubId: id,
+          userId: userData?.id,
+          isLiked: isLiked
+        }),
+      });
+
+      const resJSON = await res.json();
+      console.log(resJSON.message);
+      return res.ok
+
+    } catch (error) {
+      console.log(error);
+      return false
+    }
+  }
+
+  async function createComment() {
+    try {
+      const res = await fetch('/api/pub/comment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userID: userData?.id,
+          publicationID: parseInt(publication_id as string),
+          content: comment,
+        }),
+      });
+
+      res.json()
+        .then((data) => {
+          console.log(data.msg);
+      });
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   useEffect(() => {
     async function getComments () {
@@ -59,7 +108,13 @@ export default function page() {
         <Header route='NON'/>
         <main className='bg-slate-100 h-screen flex justify-center'>
           <section className='bg-white w-2/4'> 
-            <Card_Publication infoCreator={publication.usuario as UserData} infoPublication={publication as Publication} isLiked={publication.interacciones?.length as number > 0 ? true : false} onClickUser={(uid) => router.push(`/profile/${uid}`)}/>
+            <Card_Publication 
+              infoCreator={publication.usuario as UserData}
+              infoPublication={{...publication as Publication, id: parseInt(publication_id as string)}}
+              isLiked={publication.interacciones?.length as number > 0 ? true : false}
+              onPressLike={pressedLike}
+              onClickUser={(uid) => router.push(`/profile/${uid}`)}
+              />
             <div className='border border-grays-200 mt-[-12px]'/>
   
             <div className='border-b border-gray-200'>
@@ -83,11 +138,14 @@ export default function page() {
               </div>
               <div className='flex justify-end pr-4 pb-4'>
                 <button className={`px-4 py-2 rounded-full text-white ${
-                      (comment !== '') ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
+                      (comment !== '' && !loading) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
                   }`}
+                  disabled={comment === '' || loading}
                   onClick={() => {
+                    if (loading) return;
+                    setLoading(true);
+                    createComment();
                   }}
-                  disabled={comment == ''}
                   >
                   Comentar
                 </button>
@@ -99,6 +157,7 @@ export default function page() {
                   key={index}
                   infoComment={com} 
                   infoCreator={com.usuario}
+                  onClickUser={(uid) => router.push(`/profile/${uid}`)}
                 />
               );
             })}
