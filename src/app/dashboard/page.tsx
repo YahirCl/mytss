@@ -42,6 +42,7 @@ export default function Page() {
           },
         });
         
+        //console.log(await res.json());
         setPublications(await res.json());
         setIsLoading(false);
       } catch (error) {
@@ -117,6 +118,8 @@ export default function Page() {
   if(isLoading) {
     return <Loading />
   }
+
+  console.log(publications);
 
   return (
     <>

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import Card_Profile from './Card_Profile';
 import Image from 'next/image';
 import CommentModal from './CommentModal';
+import classNames from "classnames";
 
 export default function Card_Publication(
   {infoPublication, infoCreator, isLiked, onPressPublication, onPressLike, onClickUser} : 
@@ -15,14 +16,20 @@ export default function Card_Publication(
     onClickUser: (uid: string) => void
   }) {
 
-  const {contenido, emocion, fechaPublicacion, id} = infoPublication;
-  const [comments, setComments] = useState(infoPublication.reposts);
-  const [likes, setLikes] = useState(infoPublication.likes);
+    const {contenido, emocion, fechaPublicacion, nivelVacio, id} = infoPublication;
+    const [comments, setComments] = useState(infoPublication.reposts);
+    const [likes, setLikes] = useState(infoPublication.likes);
+    
+    const [likeLoading, setLikeLoading] = useState(false);
+    const [liked, setLiked] = useState(isLiked);
+    const [commentModalOpen, setCommentModalOpen] = useState(false);
 
-  const [likeLoading, setLikeLoading] = useState(false);
-  const [liked, setLiked] = useState(isLiked);
-  const [commentModalOpen, setCommentModalOpen] = useState(false);
-  
+    const bgColor = classNames({
+      "bg-green-400": nivelVacio === "bueno",
+      "bg-yellow-300": nivelVacio === "llamado de atención",
+      "bg-red-400": nivelVacio === "alerta de vacío existencial",
+    });
+
   return (
     <>
       {commentModalOpen && <CommentModal infoCreator={infoCreator} infoPublication={infoPublication} onClickClose={(pub) => {
@@ -32,10 +39,14 @@ export default function Card_Publication(
         
       <article className='bg-white rounded-md w-[100%] text-black my-3'>
         <div className='p-3' onClick={onPressPublication}>
-          <Card_Profile data={{name: infoCreator.nombreUsuario, img: infoCreator.avatarUrl as string, date: fechaPublicacion, emocion: emocion}} onClickUser={(e) => {
-            e.stopPropagation();
-            onClickUser(infoCreator.uid);
-          }}/>
+          <div className='flex justify-between'>
+            <Card_Profile data={{name: infoCreator.nombreUsuario, img: infoCreator.avatarUrl as string, date: fechaPublicacion, emocion: emocion}} onClickUser={(e) => {
+              e.stopPropagation();
+              onClickUser(infoCreator.uid);
+            }}/>
+            <div className={`${bgColor} w-3 h-3 rounded-full `}/>
+          </div>
+          
           <p className='ml-2 mt-3'>{contenido}</p>
         </div>
 

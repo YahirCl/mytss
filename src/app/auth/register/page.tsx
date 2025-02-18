@@ -8,13 +8,9 @@ import Link from 'next/link'
 import MyInput from '../MyInput'
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../../libs/firebase-config';
-import { useRouter } from 'next/navigation';
 import LoadingTransparent from '@/app/LoadingTransparent';
 
 export default function page() {
-
-  const router = useRouter();
-
   const [formInfo, setFormInfo] = useState<RequiredFormFields & OthersFormFields>({
     username: "",
     fullname: "",
@@ -112,14 +108,7 @@ export default function page() {
         setIsLoading(false);
         throw new Error('Error al registrar los datos del usuario.');
       }
-
       console.log('Registro del usuario completado');
-      auth.signOut();
-      
-      // Asegurar que los datos estén listos antes de redirigir
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Pequeña espera opcional
-
-      router.replace('/auth/login');
     } catch (error) {
       console.error(error);
     }

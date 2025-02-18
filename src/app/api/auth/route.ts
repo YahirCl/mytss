@@ -66,13 +66,20 @@ export async function GET(request: NextRequest) {
       //Search for UID, getting your necessary information
       const usuario = await prisma.usuario.findUnique({
         where: { uid: uid },
+        include: {encuesta: {
+          select: {
+            puntajeDesesperanza: true,
+            riesgoAlto: true,
+            fecha: true
+          }
+        }}
       });
 
       if (!usuario) {
           return NextResponse.json({ message: 'Usuario no encontrado' }, { status: 404 });
       }
       
-      return NextResponse.json(usuario);
+      return NextResponse.json({...usuario, encuesta: !!usuario.encuesta});
     }
 
     // Si no se proporciona ni ID ni email

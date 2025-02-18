@@ -1,14 +1,21 @@
 import { prisma } from "@/libs/db";
 import { NextRequest, NextResponse } from "next/server";
+import { analyzeText } from '@/utils/analyze'
 
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
+    let analyze = "";
+    
+    if(data.content) {
+      analyze = await analyzeText(data.content);
+    }
 
     const pub = await prisma.publicacion.create({
       data: {
         contenido: data.content,
         emocion: data.emocion,
+        nivelVacio: analyze,
         usuarioId: data.userID
       },
       select: {
@@ -18,6 +25,7 @@ export async function POST(request: NextRequest) {
         fechaPublicacion: true,
         likes: true,
         reposts: true,
+        nivelVacio: true,
         usuario: {
           select: {
             uid: true,
@@ -32,6 +40,7 @@ export async function POST(request: NextRequest) {
       }
       
     });
+
 
     return NextResponse.json({msg: 'Publicación creada Correctamente', pub: pub});
   } catch (error) {
@@ -52,6 +61,7 @@ export async function GET(request: NextRequest) {
           fechaPublicacion: true,
           likes: true,
           reposts: true,
+          nivelVacio: true,
           usuario: {
             select: {
               uid: true,

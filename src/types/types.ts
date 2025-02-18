@@ -33,9 +33,11 @@ interface UserData {
     coverUrl: string | null;
     siguiendo: number;
     seguidores: number;
+    usuarioEspecial: boolean;
     publicaciones: Publication[];
     seguidoresList: Follower[]
     interacciones: Interactions[];
+    encuesta: boolean;
 }
 
 interface Publication {
@@ -46,6 +48,7 @@ interface Publication {
     fechaPublicacion: string; 
     likes: number;
     reposts: number;
+    nivelVacio: string;
     usuario: UserData;
     interacciones?: Interactions[] | string[];
     comentarios: Comment[];

@@ -4,6 +4,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "../libs/firebase-config";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import { useRouter } from 'next/navigation';
 import Loading from "@/app/Loading";
 
 type UserContextType = {
@@ -16,12 +17,14 @@ type UserContextType = {
 const AuthContext = createContext<UserContextType>({ user: null, userData: null, userToken: "", updateUserData: () => {}});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
   const storage = getStorage();
 
   const [user, setUser] = useState<User | null>(null);
   const [userToken, setUserToken] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
   const [initializing, setInitializing] = useState(true);
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
 
   function updateUserData(newData: UserData) {
     setUserData(newData);
@@ -48,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (response.ok) {
             const data = await response.json() as UserData;
-            console.log('Hola soy useAuth, Ya recibí la información del usuario')
+            console.log(data);
 
             //Comprobar las publicaciones con likes
             //const likedPublications = new Set(data.interacciones.filter(({tipoInteraccion}) => tipoInteraccion === 'LIKE').map(({publicacionId}) => publicacionId));
@@ -65,6 +68,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
             setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
+            if(data.usuarioEspecial) {
+              setRedirectTo("/admin_panel");
+            } else {
+              setRedirectTo(data.encuesta ? "/dashboard" : "/auth/form");
+            }
           } else {
             setUserData(null);
           }
@@ -73,12 +81,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } else {
         setUserData(null);
+        setRedirectTo("/auth/login");
       }
       setInitializing(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  // Manejar la redirección
+  useEffect(() => {
+    if (redirectTo) {
+      router.replace(redirectTo);
+    }
+  }, [redirectTo]);
 
   if (initializing) {
     return <Loading />; // Puedes reemplazarlo con un spinner

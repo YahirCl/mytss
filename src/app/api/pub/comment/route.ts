@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
         emocion: true,
         likes: true,
         reposts: true,
+        nivelVacio: true,
         fechaPublicacion: true,
         usuario: {
           select: {

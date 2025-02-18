@@ -7,12 +7,9 @@ import Link from "next/link";
 import MyInput from "../MyInput";
 import { auth } from "../../../libs/firebase-config";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useRouter } from "next/navigation";
-
+import LoadingTransparent from "@/app/LoadingTransparent";
 
 export default function Page() {
-  const router = useRouter();
-
   const [formInfo, setFormInfo] = useState<RequiredFormFields>({
     email: "",
     password: "",
@@ -23,6 +20,7 @@ export default function Page() {
     password: { error: false, msg: "" },
   });
 
+  const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
   function validateForm(): Record<keyof RequiredFormFields, FormErrors> {
@@ -68,60 +66,55 @@ export default function Page() {
       alert(
         "Usuario logeado correctamente: " + userCredentials.user.email
       );
-      router.replace("/dashboard");
+      //router.replace("/dashboard");
     } catch (error) {
       setLoginError("Credenciales incorrectas. Por favor, inténtelo de nuevo.");
     }
   }
 
   return (
-    <div className="bg-white min-h-screen flex justify-center items-center flex-col text-black">
-      <Image src={Logo} alt="Logo" width={400} height={300} />
+    <>
+      { isLoading && <LoadingTransparent />}
+      <div className="bg-white min-h-screen flex justify-center items-center flex-col text-black">
+        <Image src={Logo} alt="Logo" width={400} height={300} />
 
-      <form className="flex flex-col" onSubmit={handleLogin}>
-      <MyInput
-          placeholder="Correo"
-          value={formInfo.email}
-          onChangeText={(e) => setFormInfo({ ...formInfo, email: e.target.value })}
-          required={formErrors.email.error}
-          errorMessage={formErrors.email.msg}
-        />
-
+        <form className="flex flex-col" onSubmit={handleLogin}>
         <MyInput
-          placeholder="Contraseña"
-          secureTextEntry={true}
-          value={formInfo.password}
-          onChangeText={(e) => setFormInfo({ ...formInfo, password: e.target.value })}
-          required={formErrors.password.error}
-          errorMessage={formErrors.password.msg}
-        />
+            placeholder="Correo"
+            value={formInfo.email}
+            onChangeText={(e) => setFormInfo({ ...formInfo, email: e.target.value })}
+            required={formErrors.email.error}
+            errorMessage={formErrors.email.msg}
+          />
+
+          <MyInput
+            placeholder="Contraseña"
+            secureTextEntry={true}
+            value={formInfo.password}
+            onChangeText={(e) => setFormInfo({ ...formInfo, password: e.target.value })}
+            required={formErrors.password.error}
+            errorMessage={formErrors.password.msg}
+          />
 
 
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded mt-4"
-        >
-          Inicia sesión
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded mt-4"
+          >
+            Inicia sesión
+          </button>
+        </form>
 
-      {loginError && <p className="text-red-500 mt-3">{loginError}</p>}
+        {loginError && <p className="text-red-500 mt-3">{loginError}</p>}
 
-      <p className="text-black mt-5">
-        ¿No tienes una cuenta?
-        <Link href="/auth/register" className="text-blue-500">
-          {" "}
-          Regístrate
-        </Link>
-      </p>
-
-      <p className="text-black mt-5">
-        ¿Ver el formulario?
-        <Link href="/auth/form" className="text-blue-500">
-          {" "}
-          Click HERE
-        </Link>
-      </p>
-    </div>
+        <p className="text-black mt-5">
+          ¿No tienes una cuenta?
+          <Link href="/auth/register" className="text-blue-500">
+            {" "}
+            Regístrate
+          </Link>
+        </p>
+      </div>
+    </>
   );
 }

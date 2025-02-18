@@ -24,11 +24,13 @@ model Usuario {
   coverUrl       String?        @map("img_cover_url")
   siguiendo      Int            @default(0)
   seguidores     Int            @default(0)
+  usuarioEspecial Boolean       @map("usuario_especial") @default(false)
   publicaciones  Publicacion[]
   interacciones  Interaccion[]
   seguidos       Seguidor[]     @relation("Seguidos")
   seguidoresList Seguidor[]     @relation("Seguidores")
-  comentarios Comentario[]
+  comentarios    Comentario[]
+  encuesta       Encuesta?
 }
 
 model Publicacion {
@@ -39,6 +41,7 @@ model Publicacion {
   fechaPublicacion DateTime       @default(now()) @map("fecha_publicacion")
   likes            Int            @default(0)
   reposts          Int            @default(0)
+  nivelVacio       String         @map("nivel_vacio") @default("")
   usuario          Usuario        @relation(fields: [usuarioId], references: [id])
   interacciones    Interaccion[]
   comentarios Comentario[]
@@ -75,4 +78,22 @@ model Seguidor {
   seguido          Usuario      @relation("Seguidores", fields: [seguidoUid], references: [uid])
 
   @@unique(name: "seguidorUid_seguidoUid", [seguidorUid, seguidoUid])
+}
+
+model Encuesta {
+  id                  Int         @id @default(autoincrement())
+  usuarioId           Int         @unique @map("usuario_id")
+  fecha               DateTime    @default(now()) @map("fecha_encuesta")
+  puntajeDesesperanza Int
+  riesgoAlto          Boolean
+  usuario             Usuario     @relation(fields: [usuarioId], references: [id])
+  respuestas          Respuesta[]  
+}
+
+model Respuesta {
+  id         Int       @id @default(autoincrement()) 
+  encuestaId Int       
+  pregunta   String    // Nombre de la pregunta (ej. "Logo_S1_R1_Val", "Desesp_R3")
+  respuesta  String    // Respuesta seleccionada por el usuario
+  encuesta   Encuesta  @relation(fields: [encuestaId], references: [id], onDelete: Cascade)
 }

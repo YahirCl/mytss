@@ -1,8 +1,14 @@
 "use client";
 
+import { auth } from '@/libs/firebase-config';
 import { useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useAuth } from '@/hooks/useAuth';
 
 export default function EncuestaForm() {
+  const router = useRouter();
+  const { userData } = useAuth();
+
   const [formData, setFormData] = useState({
     // Vacío Existencial - Parte I (Valores de Creación)
     ...Array.from({ length: 9 }, (_, i) => [`Logo_S1_R${i + 1}_Val`, '']).reduce((acc, [key]) => ({ ...acc, [key]: '' }), {}),
@@ -24,6 +30,7 @@ export default function EncuestaForm() {
       [`Expresiones_R${i + 1}_texto`, '']
     ])).flat().reduce((acc, [key, val]) => ({ ...acc, [key]: val }), {})
   });
+  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,7 +40,19 @@ export default function EncuestaForm() {
     }));
   };
 
-  
+  const handleValidation = () => {
+    let newErrors: { [key: string]: string } = {};
+
+    // Validar solo si la respuesta es "Sí"
+    ['Expresiones_R1', 'Expresiones_R2', 'Expresiones_R3', 'Expresiones_R4'].forEach((key) => {
+      if (formData[key] === 'Sí' && !formData[`${key}_texto`]) {
+        newErrors[`${key}_texto`] = 'Por favor, proporciona más detalles.';
+      }
+    });
+
+    // Retornar false si hay errores, de lo contrario true
+    return Object.keys(newErrors).length === 0;
+  };
 
   const calcularPuntajeDesesperanza = () => {
     const positivas = [2,4,7,9,11,12,14,16,17,18,20];
@@ -43,14 +62,11 @@ export default function EncuestaForm() {
            negativas.reduce((acc, num) => acc + (!formData[`Desesp_R${num}`] ? 1 : 0), 0);
   };
 
-  const validarFormulario = () => {
-    return Object.values(formData).every(val => val !== '');
-  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validarFormulario()) {
+    if (!handleValidation()) {
       alert("Por favor complete todos los campos requeridos");
       return;
     }
@@ -62,9 +78,23 @@ export default function EncuestaForm() {
       fecha: new Date().toISOString()
     };
 
+    try {
+      const response = await fetch('/api/auth/poll', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuarioId: userData?.id, formData, ...resultado }),
+      });
 
-    console.log({...formData, resultado});
-    alert(`Encuesta enviada\nPuntaje de desesperanza: ${puntaje}\nRiesgo alto: ${resultado.riesgoAlto ? 'Sí' : 'No'}`);
+      if(response.ok) {
+        router.replace('/dashboard');
+      }
+  
+    } catch (error) {
+      console.error("Error al enviar la encuesta:", error);
+    }
+
+    //console.log({...formData, resultado});
+    //alert(`Encuesta enviada\nPuntaje de desesperanza: ${puntaje}\nRiesgo alto: ${resultado.riesgoAlto ? 'Sí' : 'No'}`);
   };
 
   const preguntas = {
@@ -171,17 +201,7 @@ export default function EncuestaForm() {
             />
             No
           </label>
-        </div>
-        {formData[preguntaKey] === 'Sí' && (
-          <textarea
-            name={textoKey}
-            value={formData[textoKey] || ""}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            rows={4}
-            placeholder="Indique su propio caso..."
-          />
-        )}
+        </div>       
       </div>
     );
   };
@@ -312,6 +332,7 @@ export default function EncuestaForm() {
                   <div className="flex space-x-4">
                     <label className="flex items-center">
                       <input
+                        required
                         type="radio"
                         name={`Desesp_R${index + 1}`}
                         value="true"
@@ -323,6 +344,7 @@ export default function EncuestaForm() {
                     </label>
                     <label className="flex items-center">
                       <input
+                        required
                         type="radio"
                         name={`Desesp_R${index + 1}`}
                         value="false"
@@ -348,18 +370,57 @@ export default function EncuestaForm() {
             num={1}
             label="a) ¿Has sentido alguna vez que tu vida es vacía o que no tiene sentido?"
           />
+          {formData.Expresiones_R1 === 'Sí' && 
+          (<textarea
+            name={'Expresiones_R1_texto'}
+            value={formData.Expresiones_R1_texto}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            rows={4}
+            placeholder="Indique su propio caso..."
+          />)}
+
           <PreguntaCondicional
             num={2}
             label="b) ¿Has pensado que tu vida no vale la pena?"
           />
+          {formData.Expresiones_R2 === 'Sí' && 
+          (<textarea
+            name={'Expresiones_R2_texto'}
+            value={formData.Expresiones_R2_texto}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            rows={4}
+            placeholder="Indique su propio caso..."
+          />)}
+
           <PreguntaCondicional
             num={3}
             label="c) ¿Has deseado alguna vez estar muerto(a)?"
           />
+          {formData.Expresiones_R3 === 'Sí' && 
+          (<textarea
+            name={'Expresiones_R3_texto'}
+            value={formData.Expresiones_R3_texto}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            rows={4}
+            placeholder="Indique su propio caso..."
+          />)}
+
           <PreguntaCondicional
             num={4}
             label="d) ¿Has pensado alguna vez en terminar con tu vida?"
           />
+          {formData.Expresiones_R4 === 'Sí' && 
+          (<textarea
+            name={'Expresiones_R4_texto'}
+            value={formData.Expresiones_R4_texto}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+            rows={4}
+            placeholder="Indique su propio caso..."
+          />)}
         </div>
 
         <button
@@ -368,6 +429,16 @@ export default function EncuestaForm() {
         >
           Enviar Encuesta
         </button>
+
+        <div className='w-full flex justify-center mt-3'>
+          <button
+            type="button"
+            className="w-96 bg-gray-400 text-white py-3 px-6 rounded-lg hover:bg-gray-500 transition-colors"
+            onClick={() => auth.signOut()}
+          >
+            Cerrar Sesión
+          </button>
+        </div>
       </form>
     </div>
   );
