@@ -54,7 +54,7 @@ model Interaccion {
   tipoInteraccion  String    @map("tipo_interaccion")
   fechaInteraccion DateTime  @default(now()) @map("fecha_interaccion")
   usuario          Usuario   @relation(fields: [usuarioId], references: [id])
-  publicacion      Publicacion @relation(fields: [publicacionId], references: [id])
+  publicacion      Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
 
   @@unique(name: "usuarioId_publicacionId", [usuarioId, publicacionId])
 }
@@ -66,7 +66,7 @@ model Comentario {
   contenido        String
   fechaComentario  DateTime    @default(now()) @map("fecha_comentario")
   usuario          Usuario     @relation(fields: [usuarioId], references: [id])
-  publicacion      Publicacion @relation(fields: [publicacionId], references: [id])
+  publicacion      Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
 }
 
 model Seguidor {

@@ -22,12 +22,15 @@ export default function page() {
   const [comment, setComment] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const textareaRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const handleInput = (e) => {
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const textarea = textareaRef.current;
+    if (textarea) { // Asegúrate de que la referencia no sea null
     textarea.style.height = "auto"; // Restablece la altura para calcular correctamente
     textarea.style.height = `${textarea.scrollHeight}px`; // Ajusta la altura según el contenido
+  }
     setComment(e.target.value);
   };
 
@@ -71,11 +74,43 @@ export default function page() {
 
       res.json()
         .then((data) => {
-          console.log(data.msg);
+          //console.log(data.comment);
+          data.comment.usuario = userData;
+          setPublication({...publication as Publication, reposts: (publication?.reposts as number  + 1), comentarios: [...publication?.comentarios as CommentT[], data.comment]});
+          setComment('');
+          setLoading(false);
       });
 
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async function deleteComment(id: number) {
+    //setIsModalOpen(true);
+
+    
+
+    try {
+      const res = await fetch('/api/pub/comment', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          commentId: id,
+          pubId: parseInt(publication_id as string)
+        }),
+      });
+
+      if (res.ok) {
+        setPublication({...publication as Publication, reposts: (publication?.reposts as number  - 1)})
+      } 
+      return res.ok
+
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 
@@ -110,10 +145,14 @@ export default function page() {
           <section className='bg-white w-2/4'> 
             <Card_Publication 
               infoCreator={publication.usuario as UserData}
-              infoPublication={{...publication as Publication, id: parseInt(publication_id as string)}}
+              infoPublication={publication as Publication}
               isLiked={publication.interacciones?.length as number > 0 ? true : false}
               onPressLike={pressedLike}
               onClickUser={(uid) => router.push(`/profile/${uid}`)}
+              commentMade={(commentMade) => {
+                commentMade.usuario = userData as UserData;
+                setPublication({...publication as Publication, reposts: (publication?.reposts as number  + 1), comentarios: [...publication?.comentarios as CommentT[], commentMade]})
+              }}
               />
             <div className='border border-grays-200 mt-[-12px]'/>
   
@@ -151,18 +190,45 @@ export default function page() {
                 </button>
               </div>
             </div>
-            {publication?.comentarios.map((com, index) => {
-              return (
-                <Card_Comment
-                  key={index}
-                  infoComment={com} 
-                  infoCreator={com.usuario}
-                  onClickUser={(uid) => router.push(`/profile/${uid}`)}
-                />
-              );
-            })}
+            <div className='flex flex-col-reverse'>
+              {publication?.comentarios.map((com, index) => {
+                const own = com.usuario.uid === userData?.uid ? true : false;
+                return (
+                  <Card_Comment
+                    key={index}
+                    infoComment={com} 
+                    infoCreator={com.usuario}
+                    showBtnDelete={own}
+                    onClickUser={(uid) => router.push(`/profile/${uid}`)}
+                    onClickDelete={deleteComment}
+                  />
+                );
+              })}
+            </div>
           </section>
         </main>
+        {/* {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full text-black">
+            <h2 className="text-xl font-bold mb-4">Confirmar Eliminación</h2>
+            <p className="mb-4">¿Estás seguro de que deseas borrar esta publicación?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-black"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => console.log('Borrado')}
+                className="px-4 py-2 bg-red-500 rounded hover:bg-red-600 text-black"
+              >
+                Sí, borrar
+              </button>
+            </div>
+          </div>
+        </div>
+        )} */}
       </ProtectedRoute>
     )
   }

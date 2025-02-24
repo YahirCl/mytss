@@ -8,14 +8,17 @@ import MyInput from "../MyInput";
 import { auth } from "../../../libs/firebase-config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import LoadingTransparent from "@/app/LoadingTransparent";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Page() {
+  const { setIsNewUser } = useAuth()
+
   const [formInfo, setFormInfo] = useState<RequiredFormFields>({
     email: "",
     password: "",
   });
 
-  const [formErrors, setFormErrors] = useState<Record<keyof RequiredFormFields, FormErrors>>({
+  const [formErrors, setFormErrors] = useState<Record<keyof RequiredFormFields, ErrorFields>>({
     email: { error: false, msg: "" },
     password: { error: false, msg: "" },
   });
@@ -23,8 +26,8 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  function validateForm(): Record<keyof RequiredFormFields, FormErrors> {
-    const errors: Record<keyof RequiredFormFields, FormErrors> = {
+  function validateForm(): Record<keyof RequiredFormFields, ErrorFields> {
+    const errors: Record<keyof RequiredFormFields, ErrorFields> = {
       email: { error: false, msg: "" },
       password: { error: false, msg: "" },
     };
@@ -56,19 +59,20 @@ export default function Page() {
     const hasErrors = Object.values(errors).some((err) => err.error);
     if (hasErrors) return;
 
+    setIsLoading(true);
     try {
-      const userCredentials = await signInWithEmailAndPassword(
+      await signInWithEmailAndPassword(
         auth,
         formInfo.email,
         formInfo.password
       );
+      setIsNewUser(true);
       console.log('Logueo del usuario completado');
-      alert(
-        "Usuario logeado correctamente: " + userCredentials.user.email
-      );
       //router.replace("/dashboard");
     } catch (error) {
+      setIsLoading(false);
       setLoginError("Credenciales incorrectas. Por favor, inténtelo de nuevo.");
+      console.log(error);
     }
   }
 
@@ -107,13 +111,22 @@ export default function Page() {
 
         {loginError && <p className="text-red-500 mt-3">{loginError}</p>}
 
-        <p className="text-black mt-5">
-          ¿No tienes una cuenta?
-          <Link href="/auth/register" className="text-blue-500">
-            {" "}
-            Regístrate
+        <div className="flex flex-col items-center">
+          <p className="text-black mt-5">
+            ¿No tienes una cuenta?
+            <Link href="/auth/register" className="text-blue-500">
+              {" "}
+              Regístrate
+            </Link>
+          </p>
+
+          <div className="w-full h-[2px] bg-gray-200 my-2"/>
+
+          <Link href="/auth/reset_password" className="text-blue-500 text-center">
+            Olvide la contraseña
           </Link>
-        </p>
+        </div>
+        
       </div>
     </>
   );

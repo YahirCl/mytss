@@ -15,6 +15,7 @@ export async function verifyToken (request: NextRequest) {
     request.headers.set("userId", decodedToken.uid); // O puedes devolverlo en la respuesta
     return null; // Indica que la autenticación pasó
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "Token inválido" }, { status: 401 });
   }
 }

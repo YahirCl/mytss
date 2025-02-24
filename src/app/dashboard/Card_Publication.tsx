@@ -1,23 +1,29 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Card_Profile from './Card_Profile';
 import Image from 'next/image';
 import CommentModal from './CommentModal';
 import classNames from "classnames";
+import { usePathname } from "next/navigation";
+import { MessageSquareWarning, Trash } from 'lucide-react';
 
 export default function Card_Publication(
-  {infoPublication, infoCreator, isLiked, onPressPublication, onPressLike, onClickUser} : 
+  {infoPublication, infoCreator, isLiked, showDeleteBtn, onPressPublication, commentMade, onPressLike, onClickUser, onPressDelete} : 
   {
     infoPublication : Publication,
     infoCreator: UserData,
     isLiked: boolean,
-    onPressPublication?: () => void,
-    onPressLike: (id: number, isLiked: boolean) => Promise<boolean>,
-    onClickUser: (uid: string) => void
+    showDeleteBtn?: boolean;
+    onPressPublication?: () => void;
+    commentMade?: (commentMade: CommentT) => void;
+    onPressLike: (id: number, isLiked: boolean) => Promise<boolean>;
+    onClickUser: (uid: string) => void;
+    onPressDelete?: (id: number) => void;
   }) {
 
-    const {contenido, emocion, fechaPublicacion, nivelVacio, id} = infoPublication;
-    const [comments, setComments] = useState(infoPublication.reposts);
+    const pathname = usePathname();
+    const {contenido, emocion, fechaPublicacion, nivelVacio, reposts, id} = infoPublication;
+    const [comments, setComments] = useState(reposts);
     const [likes, setLikes] = useState(infoPublication.likes);
     
     const [likeLoading, setLikeLoading] = useState(false);
@@ -30,21 +36,41 @@ export default function Card_Publication(
       "bg-red-400": nivelVacio === "alerta de vacío existencial",
     });
 
+    useEffect(() => {
+      setComments(reposts);
+    }, [reposts])
+
+    
   return (
     <>
-      {commentModalOpen && <CommentModal infoCreator={infoCreator} infoPublication={infoPublication} onClickClose={(pub) => {
-        if(pub) setComments((prev) => prev+1);
+      {commentModalOpen && <CommentModal infoCreator={infoCreator} infoPublication={infoPublication} onClickClose={(comStatus, comment) => {
+        const checkPath = pathname.substring(0,21);
+        if(comStatus && checkPath !== '/publication_complete') setComments((prev) => prev+1);
+        if(commentMade) commentMade(comment as CommentT);
         setCommentModalOpen(false);
       }}/>}
         
       <article className='bg-white rounded-md w-[100%] text-black my-3'>
-        <div className='p-3' onClick={onPressPublication}>
+        <div className='p-3 cursor-pointer' onClick={() => {
+          const selection = window.getSelection();
+          if (selection && selection.toString().length > 0) {
+            // Si hay texto seleccionado, no hacemos nada
+            return;
+          }
+          if (onPressPublication) onPressPublication();
+        }}>
           <div className='flex justify-between'>
             <Card_Profile data={{name: infoCreator.nombreUsuario, img: infoCreator.avatarUrl as string, date: fechaPublicacion, emocion: emocion}} onClickUser={(e) => {
               e.stopPropagation();
               onClickUser(infoCreator.uid);
             }}/>
-            <div className={`${bgColor} w-3 h-3 rounded-full `}/>
+            <div className='flex gap-2'>
+              {showDeleteBtn && <Trash className='mt-[-5px] cursor-pointer hover:fill-red-400' color={'#f87171'} size={20} onClick={(e) => {
+                e.stopPropagation();
+                if(onPressDelete) onPressDelete(id);
+              }}/>}
+              <div className={`${bgColor} w-3 h-3 rounded-full `}/>
+            </div>
           </div>
           
           <p className='ml-2 mt-3'>{contenido}</p>
@@ -90,6 +116,13 @@ export default function Card_Publication(
               height={24}
             />
             {comments}
+          </button>
+          <button className='flex text-black gap-1' onClick={(e) => {
+            e.stopPropagation();
+            setCommentModalOpen(true)
+          }}>
+            <MessageSquareWarning />
+            Alertar
           </button>
         </div>
       </article>

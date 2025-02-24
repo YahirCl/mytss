@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Card_Profile from './Card_Profile'
 import { useAuth } from '@/hooks/useAuth'
 
-export default function CommentModal({infoPublication, infoCreator, onClickClose}: {infoPublication : Publication, infoCreator: UserData, onClickClose: (pub: boolean) => void}) {
+export default function CommentModal({infoPublication, infoCreator, onClickClose}: {infoPublication : Publication, infoCreator: UserData, onClickClose: (comStatus: boolean, com?: CommentT) => void}) {
 
   const { userData } = useAuth();
   const [comment, setComment] = useState('');
@@ -26,7 +26,7 @@ export default function CommentModal({infoPublication, infoCreator, onClickClose
       res.json()
         .then((data) => {
           console.log(data.msg);
-          onClickClose(res.ok)
+          onClickClose(res.ok, data.comment)
       });
 
     } catch (error) {

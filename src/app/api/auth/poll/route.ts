@@ -1,4 +1,4 @@
-import { verifyToken } from '@/libs/authMiddleware';
+//import { verifyToken } from '@/libs/authMiddleware';
 import { prisma } from '@/libs/db';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -26,6 +26,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json("Datos de la encuesta Guardados Correctamente");
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: 'Error al registrar los datos de la Encuesta', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Error al registrar los datos de la Encuesta', error: error}, { status: 500 });
   }
 }

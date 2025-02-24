@@ -12,6 +12,7 @@ export default function Page() {
 
   useEffect(() => {
     console.log("Hola soy startPage, en teoría cambio el estado de Auth");
+    console.log(user)
     if (user && userData?.encuesta) {
       router.replace("/dashboard");
     } else if (user && !userData?.encuesta) {

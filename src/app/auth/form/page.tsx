@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { auth } from '@/libs/firebase-config';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/hooks/useAuth';
+import LoadingTransparent from '@/app/LoadingTransparent';
 
 export default function EncuestaForm() {
   const router = useRouter();
   const { userData } = useAuth();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     // Vacío Existencial - Parte I (Valores de Creación)
     ...Array.from({ length: 9 }, (_, i) => [`Logo_S1_R${i + 1}_Val`, '']).reduce((acc, [key]) => ({ ...acc, [key]: '' }), {}),
 
@@ -22,7 +24,7 @@ export default function EncuestaForm() {
     Logo_S3_R3: '',
 
     // Desesperanza (20 ítems)
-    ...Array.from({ length: 20 }, (_, i) => [`Desesp_R${i + 1}`, false]).reduce((acc, [key]) => ({ ...acc, [key]: false }), {}),
+    ...Array.from({ length: 20 }, (_, i) => [`Desesp_R${i + 1}`, false]).reduce((acc, [key]: any) => ({ ...acc, [key]: false }), {}),
 
     // Expresiones evaluables
     ...Array.from({ length: 4 }, (_, i) => ([
@@ -30,18 +32,18 @@ export default function EncuestaForm() {
       [`Expresiones_R${i + 1}_texto`, '']
     ])).flat().reduce((acc, [key, val]) => ({ ...acc, [key]: val }), {})
   });
-  
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e: any) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleValidation = () => {
-    let newErrors: { [key: string]: string } = {};
+    const newErrors: { [key: string]: string } = {};
 
     // Validar solo si la respuesta es "Sí"
     ['Expresiones_R1', 'Expresiones_R2', 'Expresiones_R3', 'Expresiones_R4'].forEach((key) => {
@@ -63,13 +65,14 @@ export default function EncuestaForm() {
   };
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     
     if (!handleValidation()) {
       alert("Por favor complete todos los campos requeridos");
       return;
     }
+    setIsLoading(true);
 
     const puntaje = calcularPuntajeDesesperanza();
     const resultado = {
@@ -142,7 +145,7 @@ export default function EncuestaForm() {
     ]
   };
 
-  const SeccionSelect = ({ titulo, preguntas, opciones, prefijo }) => (
+  const SeccionSelect = ({ titulo, preguntas, opciones, prefijo }: {titulo: string, preguntas: string[], opciones: string[], prefijo: string}) => (
     <div className="mb-8 p-4 bg-gray-50 rounded-lg">
       <h3 className="text-xl font-semibold mb-4">{titulo}</h3>
       {preguntas.map((pregunta, index) => (
@@ -167,9 +170,8 @@ export default function EncuestaForm() {
     </div>
   );
 
-  const PreguntaCondicional = ({ num, label }) => {
+  const PreguntaCondicional = ({ num, label }: {num: number, label: string}) => {
     const preguntaKey = `Expresiones_R${num}`;
-    const textoKey = `${preguntaKey}_texto`;
 
     return (
       <div className="mb-4 p-4 bg-gray-50 rounded-lg">
@@ -206,10 +208,10 @@ export default function EncuestaForm() {
     );
   };
 
-  
-
   return (
-    <div className="min-h-screen bg-white text-black">
+    <>
+      { isLoading && <LoadingTransparent />}
+      <div className="min-h-screen bg-white text-black">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-center">Instrumento de Detección Completo</h1>
 
@@ -240,17 +242,17 @@ export default function EncuestaForm() {
               <div className="space-y-3">
                 <div className="border-l-4 border-blue-500 pl-3">
                   <p className="font-medium">Caso A:</p>
-                  <p className="text-sm">"Un hombre/mujer tiene éxito en su vida. Aquello que siempre deseaba no lo pudo lograr, pero con el tiempo se procuró una buena posición y puede esperar un futuro sin sobresaltos."</p>
+                  <p className="text-sm">&quot;Un hombre/mujer tiene éxito en su vida. Aquello que siempre deseaba no lo pudo lograr, pero con el tiempo se procuró una buena posición y puede esperar un futuro sin sobresaltos.&quot;</p>
                 </div>
 
                 <div className="border-l-4 border-green-500 pl-3">
                   <p className="font-medium">Caso B:</p>
-                  <p className="text-sm">"Un hombre/mujer se empeñó en una tarea que eligió como meta. A pesar de constantes fracasos todavía se aferra a ella. Por esa causa ha debido renunciar a muchas cosas y ha logrado muy poco beneficio."</p>
+                  <p className="text-sm">&quot;Un hombre/mujer se empeñó en una tarea que eligió como meta. A pesar de constantes fracasos todavía se aferra a ella. Por esa causa ha debido renunciar a muchas cosas y ha logrado muy poco beneficio.&quot;</p>
                 </div>
 
                 <div className="border-l-4 border-purple-500 pl-3">
                   <p className="font-medium">Caso C:</p>
-                  <p className="text-sm">"Un hombre/mujer ha establecido un compromiso entre sus deseos y las circunstancias. Cumple con sus obligaciones mansamente, aunque sin gusto, y cuando es posible se dedica a sus ambiciones privadas."</p>
+                  <p className="text-sm">&quot;Un hombre/mujer ha establecido un compromiso entre sus deseos y las circunstancias. Cumple con sus obligaciones mansamente, aunque sin gusto, y cuando es posible se dedica a sus ambiciones privadas.&quot;</p>
                 </div>
               </div>
             </div>
@@ -306,7 +308,7 @@ export default function EncuestaForm() {
                   value={formData.Logo_S3_R3}
                   onChange={handleChange}
                   className="w-full p-2 border rounded"
-                  rows="4"
+                  rows={4}
                   placeholder="Indique: 
           - Lo que siempre ha buscado
           - Lo que ha alcanzado
@@ -441,5 +443,6 @@ export default function EncuestaForm() {
         </div>
       </form>
     </div>
+    </>
   );
 }

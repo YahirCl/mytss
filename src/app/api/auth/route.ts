@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json("Usuario registrado correctamente");
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: 'Error al registrar usuario', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Error al registrar usuario', error: error }, { status: 500 });
   }
 }
 
@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
           fechaPublicacion: true,
           likes: true,
           reposts: true,
+          nivelVacio: true,
           interacciones: {
             where: {usuarioId: id},
             select: {tipoInteraccion: true},
@@ -85,7 +86,7 @@ export async function GET(request: NextRequest) {
     // Si no se proporciona ni ID ni email
     return NextResponse.json({ message: 'Se requiere un parámetro de búsqueda (uid)' }, { status: 400 });
   } catch (error) {
-    return NextResponse.json({ message: 'Error al buscar usuario', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Error al buscar usuario', error: error }, { status: 500 });
   }
 }
   
@@ -107,7 +108,7 @@ export async function PUT(request: NextRequest) {
       message: 'Usuario actualizado correctamente',
     });
   } catch (error) {
-    return NextResponse.json({ message: 'Error al actualizar usuario', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Error al actualizar usuario', error: error }, { status: 500 });
   }
 }
 
@@ -122,6 +123,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: 'Usuario eliminado correctamente' });
   } catch (error) {
-    return NextResponse.json({ message: 'Error al eliminar usuario', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Error al eliminar usuario', error: error }, { status: 500 });
   }
 }

@@ -17,7 +17,7 @@ export default function Page() {
   const router = useRouter();
 
   const { profile_uid } = params;
-  const { userData, userToken } = useAuth();
+  const { userData, userToken, updateUserData} = useAuth();
   const own = profile_uid === userData?.uid;
 
   const [isLoadingScreen, setIsLoadingScreen] = useState(true);
@@ -80,6 +80,8 @@ export default function Page() {
 
       console.log(await response.json());
       setFollowedBtn(!followedBtn);
+      setProfileData({...profileData as UserData, seguidores: followedBtn ? profileData?.seguidores as number - 1 : profileData?.seguidores as number + 1});
+      updateUserData({...userData as UserData, siguiendo: followedBtn ? userData?.siguiendo as number - 1 : userData?.siguiendo as number + 1})
     } finally {
       setBtnLoading(false);
     }
@@ -109,16 +111,41 @@ export default function Page() {
     }
   }
 
+  function deletePublication(id: number) {
+    try {
+      fetch('/api/pub/', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pubId: id,
+          userId: userData?.id,
+          userUid: userData?.uid
+        }),
+      }).then((res) => {
+        res.json().then((data) => {
+          console.log(data.msg);
+        })
+      })
+
+      console.log()
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   // Datos de ejemplo para la sección de información
   const informacion = [
     { icon: '👤', label: 'Nombre completo', value: userData?.nombreCompleto || 'Nombre no disponible' },
     { icon: '✉️', label: 'Correo electrónico', value: userData?.email || 'Correo no disponible' },
-    { icon: '🔒', label: 'Contraseña', value: userData?.contrasena || 'Contraseña no disponible' },
   ];
 
   if(isLoadingScreen) {
     return <Loading />
   }
+
+  console.log(profileData);
 
   return (
     <ProtectedRoute>
@@ -199,15 +226,16 @@ export default function Page() {
                 const yourInteractions = pub.interacciones as string[];
                 const isLiked = yourInteractions.includes("LIKE");
                 return (
-                  <div key={index} className='w-[60%]'>
-                    <Card_Publication
-                      infoPublication={pub}
-                      infoCreator={profileData}
-                      isLiked={isLiked}
-                      onPressPublication={() => router.push(`../publication_complete/${pub.id}`)}
-                      onPressLike={pressedLike} 
-                      onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}/>
-                  </div>
+                  <Card_Publication
+                    key={index}
+                    infoPublication={pub}
+                    infoCreator={profileData}
+                    isLiked={isLiked}
+                    showDeleteBtn={own}
+                    onPressPublication={() => router.push(`../publication_complete/${pub.id}`)}
+                    onPressLike={pressedLike} 
+                    onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    onPressDelete={deletePublication}/>
                 )
               })}
             </div>

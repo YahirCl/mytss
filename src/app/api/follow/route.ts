@@ -60,6 +60,6 @@ export async function PUT(request: NextRequest) {
         { status: 200 }
       );
   } catch (error) {
-    return NextResponse.json({ message: 'Error al dejar tu Follow', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Error al dejar tu Follow', error: error }, { status: 500 });
   }
 }

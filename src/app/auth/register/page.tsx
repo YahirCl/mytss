@@ -9,8 +9,11 @@ import MyInput from '../MyInput'
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../../libs/firebase-config';
 import LoadingTransparent from '@/app/LoadingTransparent';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function page() {
+  const { setIsNewUser } = useAuth()
+
   const [formInfo, setFormInfo] = useState<RequiredFormFields & OthersFormFields>({
     username: "",
     fullname: "",
@@ -109,6 +112,7 @@ export default function page() {
         throw new Error('Error al registrar los datos del usuario.');
       }
       console.log('Registro del usuario completado');
+      setIsNewUser(true);
     } catch (error) {
       console.error(error);
     }

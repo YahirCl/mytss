@@ -51,7 +51,7 @@ interface Publication {
     nivelVacio: string;
     usuario: UserData;
     interacciones?: Interactions[] | string[];
-    comentarios: Comment[];
+    comentarios: CommentT[];
   }
   
 
@@ -65,7 +65,7 @@ interface Interactions {
     publicacion: Publication;
 }
 
-interface Comment {
+interface CommentT {
   id: number;
   usuarioId: number;
   publicacionId: number;

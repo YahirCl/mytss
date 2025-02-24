@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -13,9 +14,9 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
   const [querySearchUser, setQuerySearchUser] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resultUsers, setResultUsers] = useState<ResultUser[]>([]);
-  const dropdownRef = useRef(null);
-  const resultUsersRef = useRef(null);
-  const modalRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const resultUsersRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const fetchUsers = async (searchQuery: string) => {
     if (searchQuery.trim() === "") return;
@@ -44,7 +45,7 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
   }, []);
 
 
-  const handleClickOutside = (event) => {
+  const handleClickOutside = (event: any) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setIsOpenDropDown(false);
     }
@@ -69,12 +70,12 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
     }
   };
   
-  const toggleDropdown = (event) => {
+  const toggleDropdown = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.stopPropagation();                                                                                                                                    
     setIsOpenDropDown(!isOpenDropDown);
   };
 
-  const toggleModal = (event) => {
+  const toggleModal = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.stopPropagation();
     setIsModalOpen(!isModalOpen);
   };

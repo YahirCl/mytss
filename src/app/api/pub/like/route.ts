@@ -60,7 +60,7 @@ export async function PUT(request: NextRequest) {
 
     // Respuesta de error
     return NextResponse.json(
-      { success: false, message: "Error al dar like", error: error.message },
+      { success: false, message: "Error al dar like", error: error },
       { status: 500 }
     );
   }

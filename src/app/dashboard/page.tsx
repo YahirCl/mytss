@@ -107,6 +107,7 @@ export default function Page() {
           setSelectedEmotion(null);
           setPublications([...publications, data.pub]);
           setIsTransLoading(false);
+          console.log(data.pub);
           alert(data.msg);
       });
 
@@ -119,14 +120,12 @@ export default function Page() {
     return <Loading />
   }
 
-  console.log(publications);
-
   return (
     <>
       {isTransLoading && <LoadingTransparent />}
       <ProtectedRoute>
         <Header route='HOME'/>
-        <main className='flex flex-col items-center bg-slate-100 text-black'>
+        <main className='h-screen flex flex-col items-center bg-slate-100 text-black'>
           <section className='border-[1.8px] border-black p-5 rounded-md w-[60%] mt-5'>
             <div className='flex'>
               <Card_Profile data={{name: userData?.nombreUsuario, img: userData?.avatarUrl as string}} />
@@ -176,13 +175,13 @@ export default function Page() {
               const isLiked = yourInteractions.includes("LIKE");
               return (
                 <div key={index} className="w-[60%]">
-                  <Card_Publication 
+                  <Card_Publication
                     infoPublication={pub} 
                     infoCreator={pub.usuario}
                     isLiked={isLiked}
                     onPressPublication={() => router.push(`publication_complete/${pub.id}`)}
                     onPressLike={pressedLike}
-                    onClickUser={(uid) => router.push(`/profile/${uid}`)}/>
+                    onClickUser={(uid) => router.push(`/profile/${uid}`)}/> 
                 </div>
               );
             })} 

@@ -12,9 +12,10 @@ type UserContextType = {
   userData: UserData | null; // Para los datos adicionales\\
   userToken: string;
   updateUserData: (newData: UserData) => void;
+  setIsNewUser: (value: boolean) => void;
 };
 
-const AuthContext = createContext<UserContextType>({ user: null, userData: null, userToken: "", updateUserData: () => {}});
+const AuthContext = createContext<UserContextType>({ user: null, userData: null, userToken: "", updateUserData: () => {},  setIsNewUser: () => {}});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userToken, setUserToken] = useState("");
   const [userData, setUserData] = useState<UserData | null>(null);
   const [initializing, setInitializing] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(false);
   const [redirectTo, setRedirectTo] = useState<string | null>(null);
 
   function updateUserData(newData: UserData) {
@@ -66,13 +68,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               imgCoverURL = await getDownloadURL(ref(storage, `users/${user.uid}/cover_img`));
             }
 
+            console.log('data: ', data);
+            console.log("Is New", isNewUser);
 
             setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
-            if(data.usuarioEspecial) {
-              setRedirectTo("/admin_panel");
-            } else {
-              setRedirectTo(data.encuesta ? "/dashboard" : "/auth/form");
+            if (isNewUser || !data.encuesta) {
+              if(data.usuarioEspecial) {
+                setRedirectTo("/admin_panel");
+              } else {
+                setRedirectTo(data.encuesta ? "/dashboard" : "/auth/form");
+              }
+              setIsNewUser(false);
             }
+            
           } else {
             setUserData(null);
           }
@@ -87,7 +95,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [isNewUser]);
 
   // Manejar la redirección
   useEffect(() => {
@@ -101,7 +109,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, userData, userToken, updateUserData}}>
+    <AuthContext.Provider value={{ user, userData, userToken, updateUserData, setIsNewUser}}>
       {children}
     </AuthContext.Provider>
   );
