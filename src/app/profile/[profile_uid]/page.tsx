@@ -235,6 +235,7 @@ export default function Page() {
                 data={profileData?.nombreCompleto !== null ? profileData?.nombreCompleto as string : ""}
                 type='text'
                 name='nombreCompleto'
+                showBtnEdit={own}
                 isEdit={editMode.name}
                 onChangeEdit={(value) => setEditMode({name: value, sex: false, date: false, school: false})}
                 onClickSave={updatePublicData}
@@ -246,6 +247,7 @@ export default function Page() {
                 data={profileData?.sexo !== null ? profileData?.sexo.toString() as string : ""}
                 type='select'
                 name='sexo'
+                showBtnEdit={own}
                 isEdit={editMode.sex}
                 onChangeEdit={(value) => setEditMode({name: false, sex: value, date: false, school: false})}
                 onClickSave={updatePublicData}
@@ -257,6 +259,7 @@ export default function Page() {
                 data={profileData?.fechaNacimiento !== null ? profileData?.fechaNacimiento as string : ""}
                 type='date'
                 name='fechaNacimiento'
+                showBtnEdit={own}
                 isEdit={editMode.date}
                 onChangeEdit={(value) => setEditMode({name: false, sex: false, date: value, school: false})}
                 onClickSave={updatePublicData}
@@ -268,6 +271,7 @@ export default function Page() {
                 data={profileData?.carrera !== null ? profileData?.carrera as string : ""}
                 type='text'
                 name='carrera'
+                showBtnEdit={own}
                 isEdit={editMode.school}
                 onChangeEdit={(value) => setEditMode({name: false, sex: false, date: false, school: value})}
                 onClickSave={updatePublicData}

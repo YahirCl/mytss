@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, useState } from "react";
-import { Eye, EyeClosed, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 type Props = {
   secureTextEntry?: boolean;

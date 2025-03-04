@@ -1,13 +1,14 @@
 import React, { useState } from 'react'
 import { Pencil } from 'lucide-react'
 
-export default function InformationComponent({children, title, data, type, name, isEdit, onChangeEdit, onClickSave} : 
+export default function InformationComponent({children, title, data, type, name, showBtnEdit, isEdit, onChangeEdit, onClickSave} : 
   {
     children : React.ReactNode,
     title: string,
     data: string,
     type: 'select' | 'text' | 'date',
     name: string;
+    showBtnEdit: boolean,
     isEdit: boolean,
     onChangeEdit: (value: boolean) => void,
     onClickSave: (data: string | boolean | null, name: string) => Promise<boolean>
@@ -109,7 +110,7 @@ export default function InformationComponent({children, title, data, type, name,
             )}
           </div>
           :
-          <button className="text-gray-500 hover:text-black" type='button' onClick={() => onChangeEdit(true)}><Pencil size={19}/></button>
+          (showBtnEdit && <button className="text-gray-500 hover:text-black" type='button' onClick={() => onChangeEdit(true)}><Pencil size={19}/></button>)
           }
     </div>
   )

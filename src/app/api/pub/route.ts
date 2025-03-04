@@ -117,7 +117,7 @@ export async function PUT (request: NextRequest) {
   try {
     const data = await request.json();
 
-    const { pubId, userId, userUid, nContent, nEmotion } = data;
+    const { pubId, nContent, nEmotion } = data;
 
     await prisma.publicacion.update({
       where: {id: pubId},

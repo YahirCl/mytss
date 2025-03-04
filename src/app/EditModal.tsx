@@ -56,9 +56,9 @@ export default function EditModal({infoPublication, infoCreator, onClickClose}: 
         </div>
 
         <button className={`px-4 py-2 rounded-full text-white ${
-          (content !== '' && !loading && content !== infoPublication.contenido) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
+          (content !== '' && !loading && content !== infoPublication.contenido && selectedEmotion !== infoPublication.Emotion) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
           }`}
-          disabled={content === '' || loading || content === infoPublication.contenido}
+          disabled={content === '' || loading || content === infoPublication.contenido || selectedEmotion !== infoPublication.Emotion}
           onClick={() => {
             if (loading) return;
             setLoading(true);

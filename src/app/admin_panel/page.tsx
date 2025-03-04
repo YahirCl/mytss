@@ -46,12 +46,13 @@ export default function page() {
     if(!userData?.usuarioEspecial) router.back();
 
     if (firstsLoading[selected]) {
-      setFirstLoading({...firstsLoading, [selected]: false})
+      setFirstLoading({...firstsLoading, [selected]: false});
+      console.log('Entro aqui')
       fetchData();
     }
   }, [selected]);
 
-  if (listStudents.length === 0 || listReports.length === 0 || listRiskMessages.length === 0) {
+  if (listStudents.length === 0) {
     return <Loading />
   } else {
     return (
