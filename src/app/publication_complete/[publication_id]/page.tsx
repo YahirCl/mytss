@@ -10,6 +10,7 @@ import Image from 'next/image'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter, useParams } from 'next/navigation';
 import Loading from '@/app/Loading'
+import ConfirmationModal from '@/app/ConfirmationModal'
 
 export default function page() {
   const params = useParams();
@@ -20,9 +21,9 @@ export default function page() {
 
   const [publication, setPublication] = useState<Publication>();
   const [comment, setComment] = useState("");
-
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, texts: {txtBtn: string, title: string, msg: string}, resolve: (value: boolean) => void } | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -33,30 +34,6 @@ export default function page() {
   }
     setComment(e.target.value);
   };
-
-  async function pressedLike(id: number, isLiked: boolean){
-    try {
-      const res = await fetch('/api/pub/like', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pubId: id,
-          userId: userData?.id,
-          isLiked: isLiked
-        }),
-      });
-
-      const resJSON = await res.json();
-      console.log(resJSON.message);
-      return res.ok
-
-    } catch (error) {
-      console.log(error);
-      return false
-    }
-  }
 
   async function createComment() {
     try {
@@ -87,31 +64,39 @@ export default function page() {
   }
 
   async function deleteComment(id: number) {
-    //setIsModalOpen(true);
-
-    
-
-    try {
-      const res = await fetch('/api/pub/comment', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          commentId: id,
-          pubId: parseInt(publication_id as string)
-        }),
-      });
-
-      if (res.ok) {
-        setPublication({...publication as Publication, reposts: (publication?.reposts as number  - 1)})
-      } 
-      return res.ok
-
-    } catch (error) {
-      console.log(error);
-      return false;
+    const confirmed = await showModal({txtBtn: 'Si, Borrar', msg: '¿Estás seguro de que deseas borrar este comentario?', title: 'Confirmar Eliminación'});
+    //setModalConfig(null);
+    if (confirmed) {
+      try {
+        const res = await fetch('/api/pub/comment', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            commentId: id,
+            pubId: parseInt(publication_id as string)
+          }),
+        });
+  
+        if (res.ok) {
+          setPublication({...publication as Publication, reposts: (publication?.reposts as number  - 1)})
+        } 
+        return res.ok
+  
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    } else {
+      return false
     }
+  };
+
+  function showModal(texts: {txtBtn: string, title: string, msg: string}): Promise<boolean> {
+    return new Promise((resolve) => {
+      setModalConfig({ isOpen: true, texts, resolve });
+    });
   }
 
   useEffect(() => {
@@ -123,9 +108,14 @@ export default function page() {
             'Content-Type': 'application/json',
           },
         });
-        const resJSON = await res.json();
 
-        setPublication(resJSON);
+        const data = await res.json();
+
+        if (Object.keys(data).length === 0) {
+          router.replace('/NoFoundedPublication')
+        } else {
+          setPublication(data);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -146,8 +136,14 @@ export default function page() {
             <Card_Publication 
               infoCreator={publication.usuario as UserData}
               infoPublication={publication as Publication}
-              isLiked={publication.interacciones?.length as number > 0 ? true : false}
-              onPressLike={pressedLike}
+              isLiked={publication.interacciones?.includes("LIKE") as boolean}
+              isAlerted={publication.interacciones?.includes("ALERT") as boolean}
+              showOptionsBtn={publication.usuario.uid === userData?.uid}
+              onPressDelete={showModal}
+              onPressAlert={(alerted) => showModal({
+                txtBtn: alerted ? 'Quitar Alerta' : 'Si, Alertar',
+                msg: alerted ? '¿Estás seguro de que quieres Quitar tu Alerta a esta publicación?' : '¿Estás seguro de que quieres agregar tu Alerta a esta publicación?',
+                title: alerted ? 'Eliminar Alerta' :'Mandar Alerta'})}
               onClickUser={(uid) => router.push(`/profile/${uid}`)}
               commentMade={(commentMade) => {
                 commentMade.usuario = userData as UserData;
@@ -207,28 +203,17 @@ export default function page() {
             </div>
           </section>
         </main>
-        {/* {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full text-black">
-            <h2 className="text-xl font-bold mb-4">Confirmar Eliminación</h2>
-            <p className="mb-4">¿Estás seguro de que deseas borrar esta publicación?</p>
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-black"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => console.log('Borrado')}
-                className="px-4 py-2 bg-red-500 rounded hover:bg-red-600 text-black"
-              >
-                Sí, borrar
-              </button>
-            </div>
-          </div>
-        </div>
-        )} */}
+        {modalConfig && (
+          <ConfirmationModal
+            title={modalConfig.texts.title}
+            textBtn={modalConfig.texts.txtBtn}
+            msg={modalConfig.texts.msg}
+            onClose={(confirm) => {
+              modalConfig.resolve(confirm);
+              setModalConfig(null);
+            }}
+          />
+        )}
       </ProtectedRoute>
     )
   }

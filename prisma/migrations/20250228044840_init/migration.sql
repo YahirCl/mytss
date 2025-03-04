@@ -8,6 +8,9 @@ CREATE TABLE `Usuario` (
     `fecha_registro` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `avatar_url` VARCHAR(191) NULL,
     `img_cover_url` VARCHAR(191) NULL,
+    `sexo` BOOLEAN NULL,
+    `fechaNacimiento` DATETIME(3) NULL,
+    `carrera` VARCHAR(191) NULL,
     `siguiendo` INTEGER NOT NULL DEFAULT 0,
     `seguidores` INTEGER NOT NULL DEFAULT 0,
     `usuario_especial` BOOLEAN NOT NULL DEFAULT false,
@@ -26,6 +29,7 @@ CREATE TABLE `Publicacion` (
     `fecha_publicacion` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `likes` INTEGER NOT NULL DEFAULT 0,
     `reposts` INTEGER NOT NULL DEFAULT 0,
+    `alertas` INTEGER NOT NULL DEFAULT 0,
     `nivel_vacio` VARCHAR(191) NOT NULL DEFAULT '',
 
     PRIMARY KEY (`id`)
@@ -39,7 +43,6 @@ CREATE TABLE `Interaccion` (
     `tipo_interaccion` VARCHAR(191) NOT NULL,
     `fecha_interaccion` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `Interaccion_usuario_id_publicacion_id_key`(`usuario_id`, `publicacion_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -94,13 +97,13 @@ ALTER TABLE `Publicacion` ADD CONSTRAINT `Publicacion_usuario_id_fkey` FOREIGN K
 ALTER TABLE `Interaccion` ADD CONSTRAINT `Interaccion_usuario_id_fkey` FOREIGN KEY (`usuario_id`) REFERENCES `Usuario`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Interaccion` ADD CONSTRAINT `Interaccion_publicacion_id_fkey` FOREIGN KEY (`publicacion_id`) REFERENCES `Publicacion`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Interaccion` ADD CONSTRAINT `Interaccion_publicacion_id_fkey` FOREIGN KEY (`publicacion_id`) REFERENCES `Publicacion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Comentario` ADD CONSTRAINT `Comentario_usuario_id_fkey` FOREIGN KEY (`usuario_id`) REFERENCES `Usuario`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Comentario` ADD CONSTRAINT `Comentario_publicacion_id_fkey` FOREIGN KEY (`publicacion_id`) REFERENCES `Publicacion`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Comentario` ADD CONSTRAINT `Comentario_publicacion_id_fkey` FOREIGN KEY (`publicacion_id`) REFERENCES `Publicacion`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Seguidor` ADD CONSTRAINT `Seguidor_seguidor_uid_fkey` FOREIGN KEY (`seguidor_uid`) REFERENCES `Usuario`(`uid`) ON DELETE RESTRICT ON UPDATE CASCADE;

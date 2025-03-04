@@ -11,17 +11,22 @@ import Modal from '../Modal';
 import Loading from '@/app/Loading';
 import FollowButton from '../FollowButton';
 import Card_Publication from '@/app/dashboard/Card_Publication';
+import ConfirmationModal from '@/app/ConfirmationModal';
+import InformationComponent from '../InformationComponent';
+import { User, VenusAndMars, Calendar1, University    } from 'lucide-react'
 
 export default function Page() {
   const params = useParams();
   const router = useRouter();
 
   const { profile_uid } = params;
-  const { userData, userToken, updateUserData} = useAuth();
+  const { userData, userToken, updateUserData } = useAuth();
   const own = profile_uid === userData?.uid;
 
   const [isLoadingScreen, setIsLoadingScreen] = useState(true);
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, texts: {txtBtn: string, title: string, msg: string}, resolve: (value: boolean) => void } | null>(null);
   const [btnLoading, setBtnLoading] = useState(false);
+  const [editMode, setEditMode] = useState({name: false, sex: false, date: false, school: false});
 
   const [profileData, setProfileData] = useState<UserData>();
   const [followedBtn, setFollowedBtn] = useState(false);
@@ -87,59 +92,36 @@ export default function Page() {
     }
   }
 
-  async function pressedLike(id: number, isLiked: boolean){
+  async function updatePublicData (data: string | boolean | null, field: string) {
     try {
-      const res = await fetch('/api/pub/like', {
+      const response = await fetch(`/api/auth`,{
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          pubId: id,
-          userId: userData?.id,
-          isLiked: isLiked
+          id: userData?.id, 
+          [field]: data
         }),
       });
 
-      const resJSON = await res.json();
-      console.log(resJSON.message);
-      return res.ok
-
+      if(response.ok) {
+        updateUserData({...userData as UserData, [field]: data});
+        
+      }
+      return response.ok;
+      
     } catch (error) {
       console.log(error);
       return false
     }
   }
 
-  function deletePublication(id: number) {
-    try {
-      fetch('/api/pub/', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pubId: id,
-          userId: userData?.id,
-          userUid: userData?.uid
-        }),
-      }).then((res) => {
-        res.json().then((data) => {
-          console.log(data.msg);
-        })
-      })
-
-      console.log()
-    } catch (error) {
-      console.log(error);
-    }
+  function showModal(texts: {txtBtn: string, title: string, msg: string}): Promise<boolean> {
+    return new Promise((resolve) => {
+      setModalConfig({ isOpen: true, texts, resolve });
+    });
   }
-
-  // Datos de ejemplo para la sección de información
-  const informacion = [
-    { icon: '👤', label: 'Nombre completo', value: userData?.nombreCompleto || 'Nombre no disponible' },
-    { icon: '✉️', label: 'Correo electrónico', value: userData?.email || 'Correo no disponible' },
-  ];
 
   if(isLoadingScreen) {
     return <Loading />
@@ -225,17 +207,22 @@ export default function Page() {
               {profileData?.publicaciones.map((pub, index) => {
                 const yourInteractions = pub.interacciones as string[];
                 const isLiked = yourInteractions.includes("LIKE");
+                const isAlert = yourInteractions.includes("ALERT");
                 return (
                   <Card_Publication
                     key={index}
                     infoPublication={pub}
                     infoCreator={profileData}
                     isLiked={isLiked}
-                    showDeleteBtn={own}
+                    isAlerted={isAlert}
+                    showOptionsBtn={own}
+                    onPressDelete={showModal}
+                    onPressAlert={(alerted) => showModal({
+                      txtBtn: alerted ? 'Quitar Alerta' : 'Si, Alertar',
+                      msg: alerted ? '¿Estás seguro de que quieres Quitar tu Alerta a esta publicación?' : '¿Estás seguro de que quieres agregar tu Alerta a esta publicación?',
+                      title: alerted ? 'Eliminar Alerta' :'Mandar Alerta'})}
                     onPressPublication={() => router.push(`../publication_complete/${pub.id}`)}
-                    onPressLike={pressedLike} 
-                    onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    onPressDelete={deletePublication}/>
+                    onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}/>
                 )
               })}
             </div>
@@ -243,27 +230,65 @@ export default function Page() {
           {activeTab === 'informacion' && (
             <div className="bg-white p-5 rounded-lg shadow">
               <h2 className="text-lg font-bold mb-4">Información</h2>
-              <ul className="space-y-4">
-                {informacion.map((item, index) => (
-                  <li
-                    key={index}
-                    className="flex justify-between items-center bg-gray-100 p-4 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{item.icon}</span>
-                      <div>
-                        <h3 className="font-bold">{item.label}</h3>
-                        <p className="text-gray-700">{item.value}</p>
-                      </div>
-                    </div>
-                    <button className="text-gray-500 hover:text-black">✏️</button>
-                  </li>
-                ))}
-              </ul>
+              <InformationComponent 
+                title='Nombre completo'
+                data={profileData?.nombreCompleto !== null ? profileData?.nombreCompleto as string : ""}
+                type='text'
+                name='nombreCompleto'
+                isEdit={editMode.name}
+                onChangeEdit={(value) => setEditMode({name: value, sex: false, date: false, school: false})}
+                onClickSave={updatePublicData}
+              >
+                <User/>
+              </InformationComponent>
+              <InformationComponent 
+                title='Sexo'
+                data={profileData?.sexo !== null ? profileData?.sexo.toString() as string : ""}
+                type='select'
+                name='sexo'
+                isEdit={editMode.sex}
+                onChangeEdit={(value) => setEditMode({name: false, sex: value, date: false, school: false})}
+                onClickSave={updatePublicData}
+              >
+                <VenusAndMars/>
+              </InformationComponent>
+              <InformationComponent
+                title='Fecha de nacimiento'
+                data={profileData?.fechaNacimiento !== null ? profileData?.fechaNacimiento as string : ""}
+                type='date'
+                name='fechaNacimiento'
+                isEdit={editMode.date}
+                onChangeEdit={(value) => setEditMode({name: false, sex: false, date: value, school: false})}
+                onClickSave={updatePublicData}
+              >
+                <Calendar1/>
+              </InformationComponent>
+              <InformationComponent
+                title='Carrera'
+                data={profileData?.carrera !== null ? profileData?.carrera as string : ""}
+                type='text'
+                name='carrera'
+                isEdit={editMode.school}
+                onChangeEdit={(value) => setEditMode({name: false, sex: false, date: false, school: value})}
+                onClickSave={updatePublicData}
+              >
+                <University/>
+              </InformationComponent>
             </div>
           )}
         </section>
       </main>
+      {modalConfig && (
+        <ConfirmationModal
+          title={modalConfig.texts.title}
+          textBtn={modalConfig.texts.txtBtn}
+          msg={modalConfig.texts.msg}
+          onClose={(confirm) => {
+            modalConfig.resolve(confirm);
+            setModalConfig(null);
+          }}
+        />
+      )}
     </ProtectedRoute>
   );
 }

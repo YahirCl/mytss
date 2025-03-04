@@ -4,19 +4,24 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { auth } from '../libs/firebase-config';
 import { debounce } from '@/utils/debounce';
+import { Bolt, ShieldAlert, LogOut  } from 'lucide-react'
+
 import SearchUserCard from './dashboard/SearchUserCard';
+import DropDownMenu from './DropDownMenu';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
   const router = useRouter();
+  const { userData } = useAuth();
 
   const [isOpenDropDown, setIsOpenDropDown] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  //const [isModalOpen, setIsModalOpen] = useState(false);
   const [querySearchUser, setQuerySearchUser] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [resultUsers, setResultUsers] = useState<ResultUser[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const resultUsersRef = useRef<HTMLDivElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
+  //const modalRef = useRef<HTMLDivElement>(null);
 
   const fetchUsers = async (searchQuery: string) => {
     if (searchQuery.trim() === "") return;
@@ -52,9 +57,9 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
     if (resultUsersRef.current && !resultUsersRef.current.contains(event.target)) {
       setQuerySearchUser("");
     }
-    if (modalRef.current && !modalRef.current.contains(event.target)) {
-      setIsModalOpen(false);
-    }
+    // if (modalRef.current && !modalRef.current.contains(event.target)) {
+    //   setIsModalOpen(false);
+    // }
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,10 +80,10 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
     setIsOpenDropDown(!isOpenDropDown);
   };
 
-  const toggleModal = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    event.stopPropagation();
-    setIsModalOpen(!isModalOpen);
-  };
+  // const toggleModal = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  //   event.stopPropagation();
+  //   setIsModalOpen(!isModalOpen);
+  // };
 
   return (
     <header className='bg-[#3C5998] flex justify-between p-3'>
@@ -117,42 +122,51 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
         </div>
 
         <div className='flex gap-4 mr-1'>
-          <button onClick={toggleModal} className='bg-blue-600 rounded-full p-2'>
+          {/* <button onClick={toggleModal} className='bg-blue-600 rounded-full p-2'>
             <Image 
               src="/images/bell-outline.svg" // Ruta en la carpeta public
               alt="Un ícono SVG"
               width={19}
               height={19}
             />
-          </button>
-          <button onClick={toggleDropdown} className='bg-blue-600 rounded-full p-2'>
+          </button> */}
+          <button onClick={toggleDropdown}>
             <Image 
-              src="/images/signout.svg" // Ruta en la carpeta public
+              src={ userData?.avatarUrl ? userData.avatarUrl : "/images/default-user.png"}
               alt="Un ícono SVG"
-              width={19}
-              height={19}
+              width={35}
+              height={35}
+              className='rounded-full'
             />
           </button>
         </div>
 
         {/* Opciones del menú */}
         {isOpenDropDown && (
-          <div className="absolute right-3 top-10 mt-2 w-56 text-black bg-white shadow-lg rounded-md" ref={dropdownRef}>
-            <ul className="py-2">
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                Configuración y privacidad
+          <DropDownMenu dropdownRef={dropdownRef} adjust='15px'>
+            <ul className="py-2 bg-white rounded-md">
+              {userData?.usuarioEspecial &&
+                <li>
+                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex w-full gap-2" onClick={() => router.push('admin_panel')}>
+                  <ShieldAlert/>
+                  Admin Panel
+                </button>
+                </li>
+              }
+              <li>
+                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex w-full gap-2">
+                  <Bolt/>
+                  Configuración
+                </button>
               </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                Ayuda y asistencia
-              </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                Pantalla y accesibilidad
-              </li>
-              <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => auth.signOut()}>
-                Cerrar sesión
+              <li>
+                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex w-full gap-2" onClick={() => auth.signOut()}>
+                  <LogOut/>
+                  Cerrar sesión
+                </button>
               </li>
             </ul>
-          </div>
+          </DropDownMenu>
         )}
 
         {/* Resultados de usuarios */}
@@ -178,8 +192,8 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
           </div>
         )}
 
-        {/* Modal de notificaciones */}
-      {isModalOpen && (
+      {/* Modal de notificaciones */}
+      {/* {isModalOpen && (
         <div
           className="absolute right-3 top-16 w-80 bg-white shadow-xl rounded-lg p-4"
           ref={modalRef}
@@ -238,7 +252,7 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
             </li>
           </ul>
         </div>
-      )}
+      )} */}
     </header>
   );
 }

@@ -47,7 +47,7 @@ export default function CommentModal({infoPublication, infoCreator, onClickClose
             />
           </button>
 
-          <Card_Profile data={{img: infoCreator.avatarUrl as string, name: infoCreator.nombreUsuario, date: infoPublication.fechaPublicacion, emocion: infoPublication.emocion}}/>
+          <Card_Profile data={{img: infoCreator.avatarUrl as string, name: infoCreator.nombreUsuario, date: infoPublication.fechaPublicacion, emotion: infoPublication.Emotion}}/>
           <p className='pb-4 border-gray-400 border-b-[0.5px]'>{infoPublication.contenido}</p>
 
           <div className='flex mt-4'>

@@ -15,6 +15,11 @@ type ErrorFields = {
     msg?: string;
 }
 
+type Emotions = {
+    emoji: string;
+    label: string
+}
+
 type FormErrors = Record<keyof (RequiredFormFields & OthersFormFields), ErrorFields>
 
 type CustomButtonProps = {
@@ -31,6 +36,9 @@ interface UserData {
     fechaRegistro: Date;
     avatarUrl: string | null;
     coverUrl: string | null;
+    sexo: boolean | null;
+    fechaNacimiento: string | null;
+    carrera: string | null;
     siguiendo: number;
     seguidores: number;
     usuarioEspecial: boolean;
@@ -49,9 +57,11 @@ interface Publication {
     likes: number;
     reposts: number;
     nivelVacio: string;
+    alertas: number;
     usuario: UserData;
-    interacciones?: Interactions[] | string[];
+    interacciones?: string[];
     comentarios: CommentT[];
+    Emotion: Emotions
   }
   
 
@@ -88,4 +98,12 @@ interface ResultUser {
     uid: string;
     nombreUsuario: string;
     avatarUrl: string;
+}
+interface Poll {
+  id: number;               
+  usuarioId: number;          
+  fecha: string;
+  puntajeDesesperanza: number;
+  riesgoAlto: boolean;
+  usuario: UserData;
 }

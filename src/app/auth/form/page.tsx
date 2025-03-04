@@ -379,7 +379,7 @@ export default function EncuestaForm() {
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
-            placeholder="Indique su propio caso..."
+            placeholder="¿Qué has pensado o cómo te has sentido en esos momentos? Por favor expresa con palabras (un texto tan largo como tú quieras) cómo te has sentido en esos momentos."
           />)}
 
           <PreguntaCondicional
@@ -393,7 +393,7 @@ export default function EncuestaForm() {
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
-            placeholder="Indique su propio caso..."
+            placeholder="¿Qué has pensado o cómo te has sentido en esos momentos? Por favor expresa con palabras (un texto tan largo como tú quieras) cómo te has sentido en esos momentos."
           />)}
 
           <PreguntaCondicional
@@ -407,7 +407,7 @@ export default function EncuestaForm() {
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
-            placeholder="Indique su propio caso..."
+            placeholder="¿Qué has pensado o cómo te has sentido en esos momentos? Por favor expresa con palabras (un texto tan largo como tú quieras) cómo te has sentido en esos momentos."
           />)}
 
           <PreguntaCondicional
@@ -421,7 +421,7 @@ export default function EncuestaForm() {
             onChange={handleChange}
             className="w-full p-2 border rounded"
             rows={4}
-            placeholder="Indique su propio caso..."
+            placeholder="¿Qué has pensado o cómo te has sentido en esos momentos? Por favor expresa con palabras (un texto tan largo como tú quieras) cómo te has sentido en esos momentos."
           />)}
         </div>
 

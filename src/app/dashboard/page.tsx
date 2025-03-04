@@ -9,6 +9,7 @@ import Card_Publication from './Card_Publication';
 import Loading from '../Loading';
 import { useRouter } from 'next/navigation';
 import LoadingTransparent from '../LoadingTransparent';
+import ConfirmationModal from '../ConfirmationModal';
 
 export default function Page() {
   const router = useRouter();
@@ -16,8 +17,9 @@ export default function Page() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isTransLoading, setIsTransLoading] = useState(false);
+  const [modalConfig, setModalConfig] = useState<{isOpen: boolean, texts: {txtBtn: string, title: string, msg: string}, resolve: (value: boolean) => void } | null>(null);
 
-  const [selectedEmotion, setSelectedEmotion] = useState<{emoji: string, label: string} | null>(null);
+  const [selectedEmotion, setSelectedEmotion] = useState<Emotions | null>(null);
   const [publicationInput, setPublicationInput] = useState('');
   const [publications, setPublications] = useState<Publication[]>([]);
 
@@ -61,31 +63,7 @@ export default function Page() {
     }
   };
 
-  async function pressedLike(id: number, isLiked: boolean){
-    try {
-      const res = await fetch('/api/pub/like', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pubId: id,
-          userId: userData?.id,
-          isLiked: isLiked
-        }),
-      });
-
-      const resJSON = await res.json();
-
-      console.log(resJSON.message);
-      return res.ok;
-
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  }
-
+  
   async function makePublication() {
     setIsTransLoading(true);
     try {
@@ -114,6 +92,12 @@ export default function Page() {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  function showModal(texts: {txtBtn: string, title: string, msg: string}): Promise<boolean> {
+    return new Promise((resolve) => {
+      setModalConfig({ isOpen: true, texts, resolve });
+    });
   }
 
   if(isLoading) {
@@ -173,20 +157,39 @@ export default function Page() {
             {publications.map((pub, index) => {
               const yourInteractions = pub.interacciones as string[];
               const isLiked = yourInteractions.includes("LIKE");
+              const isAlerted = yourInteractions.includes("ALERT")
+              const own = pub.usuario.uid === userData?.uid;
               return (
                 <div key={index} className="w-[60%]">
                   <Card_Publication
                     infoPublication={pub} 
                     infoCreator={pub.usuario}
                     isLiked={isLiked}
+                    isAlerted={isAlerted}
+                    showOptionsBtn={own as boolean}
                     onPressPublication={() => router.push(`publication_complete/${pub.id}`)}
-                    onPressLike={pressedLike}
-                    onClickUser={(uid) => router.push(`/profile/${uid}`)}/> 
+                    onClickUser={(uid) => router.push(`/profile/${uid}`)}
+                    onPressDelete={showModal}
+                    onPressAlert={(alerted) => showModal({
+                      txtBtn: alerted ? 'Quitar Alerta' : 'Si, Alertar',
+                      msg: alerted ? '¿Estás seguro de que quieres Quitar tu Alerta a esta publicación?' : '¿Estás seguro de que quieres agregar tu Alerta a esta publicación?',
+                      title: alerted ? 'Eliminar Alerta' :'Mandar Alerta'})}/> 
                 </div>
               );
             })} 
         </div>
         </main>
+        {modalConfig && (
+          <ConfirmationModal 
+            title={modalConfig.texts.title}
+            textBtn={modalConfig.texts.txtBtn}
+            msg={modalConfig.texts.msg}
+            onClose={(confirm) => {
+              modalConfig.resolve(confirm);
+              setModalConfig(null);
+            }}
+          />
+        )}
       </ProtectedRoute>
     </>
   );

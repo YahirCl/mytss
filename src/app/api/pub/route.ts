@@ -112,3 +112,24 @@ export async function DELETE (request: NextRequest) {
     return NextResponse.json({ message: 'Error al Eliminar Publicación', error: error }, { status: 500 });
   }
 }
+
+export async function PUT (request: NextRequest) {
+  try {
+    const data = await request.json();
+
+    const { pubId, userId, userUid, nContent, nEmotion } = data;
+
+    await prisma.publicacion.update({
+      where: {id: pubId},
+      data: {
+        contenido: nContent,
+        emocion: nEmotion
+      }
+    })
+
+
+    return NextResponse.json({msg: 'Publicación Actualizada Correctamente'});
+  } catch (error) {
+    return NextResponse.json({ message: 'Error al Actualizar la Publicación', error: error }, { status: 500 });
+  }
+}

@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
               coverUrl: true,
               nombreUsuario: true,
               nombreCompleto: true,
-              fechaRegistro: true,
+              sexo: true,
+              fechaNacimiento: true,
+              carrera: true,
               siguiendo: true,
               seguidores: true,
               publicaciones: {

@@ -22,6 +22,9 @@ model Usuario {
   fechaRegistro  DateTime       @default(now()) @map("fecha_registro")
   avatarUrl      String?        @map("avatar_url")
   coverUrl       String?        @map("img_cover_url")
+  sexo           Boolean?       
+  fechaNacimiento String?
+  carrera        String?
   siguiendo      Int            @default(0)
   seguidores     Int            @default(0)
   usuarioEspecial Boolean       @map("usuario_especial") @default(false)
@@ -41,6 +44,7 @@ model Publicacion {
   fechaPublicacion DateTime       @default(now()) @map("fecha_publicacion")
   likes            Int            @default(0)
   reposts          Int            @default(0)
+  alertas          Int            @default(0)
   nivelVacio       String         @map("nivel_vacio") @default("")
   usuario          Usuario        @relation(fields: [usuarioId], references: [id])
   interacciones    Interaccion[]
@@ -55,8 +59,6 @@ model Interaccion {
   fechaInteraccion DateTime  @default(now()) @map("fecha_interaccion")
   usuario          Usuario   @relation(fields: [usuarioId], references: [id])
   publicacion      Publicacion @relation(fields: [publicacionId], references: [id], onDelete: Cascade)
-
-  @@unique(name: "usuarioId_publicacionId", [usuarioId, publicacionId])
 }
 
 model Comentario {

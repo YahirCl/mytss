@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest) {
   try {
-    const { pubId, userId, isLiked } = await request.json();
+    const { pubId, userId, isAlerted } = await request.json();
 
     // Validar que pubId y userId existan
     if (!pubId || !userId) {
@@ -15,16 +15,16 @@ export async function PUT(request: NextRequest) {
 
     // Ejecutar la transacción
     await prisma.$transaction(async (prisma) => {
-      if(isLiked) {
+      if(isAlerted) {
         // Borrar la interacción
         await prisma.interaccion.deleteMany({
-            where: { usuarioId : userId , publicacionId: pubId, tipoInteraccion: "LIKE"},
+            where: { usuarioId : userId , publicacionId: pubId, tipoInteraccion: "ALERT"},
           });
 
         // Decrementar el contador de likes
         await prisma.publicacion.update({
             where: { id: pubId },
-            data: { likes: { decrement: 1 } },
+            data: { alertas: { decrement: 1 } },
         });
       } else {
         // Crear la interacción
@@ -32,14 +32,14 @@ export async function PUT(request: NextRequest) {
           data: {
           usuarioId: userId,
           publicacionId: pubId,
-          tipoInteraccion: "LIKE",
+          tipoInteraccion: "ALERT",
             },
         });
 
         // Incrementar el contador de likes
         await prisma.publicacion.update({
           where: { id: pubId },
-          data: { likes: { increment: 1 } },
+          data: { alertas: { increment: 1 } },
         });
       }
 

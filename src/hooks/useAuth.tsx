@@ -53,7 +53,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (response.ok) {
             const data = await response.json() as UserData;
-            console.log(data);
 
             //Comprobar las publicaciones con likes
             //const likedPublications = new Set(data.interacciones.filter(({tipoInteraccion}) => tipoInteraccion === 'LIKE').map(({publicacionId}) => publicacionId));
@@ -69,7 +68,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             }
 
             console.log('data: ', data);
-            console.log("Is New", isNewUser);
 
             setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
             if (isNewUser || !data.encuesta) {

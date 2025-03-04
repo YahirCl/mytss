@@ -97,8 +97,6 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const { id, ...resto } = data;
 
-    console.log(resto);
-
     await prisma.usuario.update({
       where: { id: id },
       data: resto,
@@ -108,6 +106,7 @@ export async function PUT(request: NextRequest) {
       message: 'Usuario actualizado correctamente',
     });
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ message: 'Error al actualizar usuario', error: error }, { status: 500 });
   }
 }

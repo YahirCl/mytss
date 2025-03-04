@@ -79,13 +79,17 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    const formattedResponse = {
+      ...res,
+      interacciones : res?.interacciones.map(i => i.tipoInteraccion)
+    }
 
-    return NextResponse.json(res);
+    return NextResponse.json(formattedResponse);
 
     // Si no se proporciona ni ID ni email
     //return NextResponse.json({ message: 'Se requiere un parámetro de búsqueda (uid)' }, { status: 400 });
   } catch (error) {
-    return NextResponse.json({ message: 'Error al buscar usuario', error: error }, { status: 500 });
+    return NextResponse.json({ message: 'Publicación NO Encontrada', error: error }, { status: 500 });
   }
 }
 

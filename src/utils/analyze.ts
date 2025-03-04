@@ -25,7 +25,11 @@ Texto: "${text}"`,
       ],
     });
 
-    return response.choices[0]?.message?.content || "No se pudo analizar el texto";
+    const responseText = response.choices[0]?.message.content?.trim() || "";
+    const regex = /\b(bueno|llamado de atención|alerta de vacío existencial)\b/;
+    const match = responseText.match(regex);
+
+    return match ? match[0] : "No válido";
   } catch (error) {
     console.error("Error en la API de OpenAI:", error);
     return "Error al analizar el texto";

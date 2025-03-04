@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useState } from 'react'
 import Card_Profile from '../dashboard/Card_Profile';
-import { FileX, Trash } from 'lucide-react';
+import { FileX, Trash2 } from 'lucide-react';
 
 export default function Card_Comment(
   {infoComment, infoCreator, showBtnDelete, onClickUser, onClickDelete} : 
@@ -26,20 +26,23 @@ export default function Card_Comment(
               <h5>Comentario Elimindo</h5>
             </div>
           ) : (
-            <div>
-              <div className='flex justify-between'>
+            <div className='flex'>
+              <div className='flex flex-col w-full'>
                 <Card_Profile data={{name: infoCreator.nombreUsuario, img: infoCreator.avatarUrl as string, date: fechaComentario}} onClickUser={() => onClickUser(infoCreator.uid)}/>
-                <button className='mt-[-15px]' onClick={async () => {
+                <p className='ml-2 mt-2'>{contenido}</p>
+              </div>
+              {showBtnDelete && 
+              <button 
+                type="button"
+                className="my-3 text-red-700 border border-red-700 hover:bg-red-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-0.5 text-center inline-flex items-center dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:focus:ring-red-800 dark:hover:bg-red-500"
+                onClick={async () => {
                   const isDelete = await onClickDelete(id);
                   if (isDelete) setCDelete(isDelete);
                 }}>
-                    {showBtnDelete && <Trash color='red' size={18}/>}
-                </button>
-              </div>
-              <p className='ml-2 mt-2'>{contenido}</p>
+                <Trash2 size={15}/>
+              </button>}
             </div>
           )}
-          
         </div>
       </article>
     </>
