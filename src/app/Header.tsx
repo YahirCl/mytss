@@ -147,7 +147,7 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
             <ul className="py-2 bg-white rounded-md">
               {userData?.usuarioEspecial &&
                 <li>
-                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex w-full gap-2" onClick={() => router.push('admin_panel')}>
+                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex w-full gap-2" onClick={() => router.push('/admin_panel')}>
                   <ShieldAlert/>
                   Admin Panel
                 </button>

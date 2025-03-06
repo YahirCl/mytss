@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      console.log("Hola soy useAuth, en teoría cambio el Auth", user);
 
       if (user) {
         // Consulta la base de datos usando el UID del usuario
@@ -66,8 +65,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if(data.coverUrl !== null) {
               imgCoverURL = await getDownloadURL(ref(storage, `users/${user.uid}/cover_img`));
             }
-
-            console.log('data: ', data);
 
             setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
             if (isNewUser || !data.encuesta) {

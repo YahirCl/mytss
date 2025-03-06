@@ -111,7 +111,7 @@ export default function page() {
 
         const data = await res.json();
 
-        if (Object.keys(data).length === 0) {
+        if (data.message) {
           router.replace('/NoFoundedPublication')
         } else {
           setPublication(data);

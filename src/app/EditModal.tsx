@@ -16,7 +16,10 @@ export default function EditModal({infoPublication, infoCreator, onClickClose}: 
       setSelectedEmotion({ emoji, label });
     }
   };
-  
+
+  //console.log('Design ', (content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion !== infoPublication.Emotion)));
+  console.log('Disabled', !(content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion.label)));
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded shadow-lg w-2/4 text-black">
@@ -56,9 +59,9 @@ export default function EditModal({infoPublication, infoCreator, onClickClose}: 
         </div>
 
         <button className={`px-4 py-2 rounded-full text-white ${
-          (content !== '' && !loading && content !== infoPublication.contenido && selectedEmotion !== infoPublication.Emotion) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
+          (content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion.label)) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
           }`}
-          disabled={content === '' || loading || content === infoPublication.contenido || selectedEmotion !== infoPublication.Emotion}
+          disabled={!(content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion.label))}
           onClick={() => {
             if (loading) return;
             setLoading(true);
