@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     let analyze = "";
     
     if(data.content) {
-      analyze = await analyzeText(data.content);
+      analyze = await analyzeText(data.content, data.emocion);
     }
 
     const pub = await prisma.publicacion.create({
@@ -120,16 +120,28 @@ export async function PUT (request: NextRequest) {
 
     const { pubId, nContent, nEmotion } = data;
 
+    // Si cambió el texto (o la emoción), se vuelve a analizar para que el nivel no quede desactualizado
+    const actual = await prisma.publicacion.findUnique({
+      where: {id: pubId},
+      select: {contenido: true, emocion: true, nivelVacio: true}
+    });
+
+    let nivelVacio = actual?.nivelVacio ?? "";
+    if (actual && (actual.contenido !== nContent || actual.emocion !== nEmotion)) {
+      nivelVacio = nContent ? await analyzeText(nContent, nEmotion) : "";
+    }
+
     await prisma.publicacion.update({
       where: {id: pubId},
       data: {
         contenido: nContent,
-        emocion: nEmotion
+        emocion: nEmotion,
+        nivelVacio: nivelVacio
       }
     })
 
 
-    return NextResponse.json({msg: 'Publicación Actualizada Correctamente'});
+    return NextResponse.json({msg: 'Publicación Actualizada Correctamente', nivelVacio});
   } catch (error) {
     return NextResponse.json({ message: 'Error al Actualizar la Publicación', error: error }, { status: 500 });
   }
