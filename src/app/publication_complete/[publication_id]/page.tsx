@@ -55,12 +55,12 @@ export default function page() {
         setPublication((prev) => ({...prev as Publication, reposts: (prev?.reposts as number  + 1), comentarios: [...prev?.comentarios as CommentT[], data.comment]}));
         setComment('');
       } else {
-        alert('No se pudo publicar el comentario');
+        console.error('No se pudo publicar el comentario');
       }
 
     } catch (error) {
       console.log(error);
-      alert('No se pudo publicar el comentario');
+      console.error('No se pudo publicar el comentario');
     } finally {
       setLoading(false);
     }

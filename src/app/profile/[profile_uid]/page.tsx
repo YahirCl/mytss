@@ -93,7 +93,7 @@ export default function Page() {
       });
 
       if (!response.ok) {
-        alert('No se pudo completar la acción. Intenta de nuevo.');
+        console.error('No se pudo completar la acción. Intenta de nuevo.');
         return;
       }
       setFollowedBtn(!followedBtn);

@@ -117,9 +117,9 @@ export default function page() {
       console.error(error);
       const code = (error as { code?: string })?.code;
       if (code === 'auth/email-already-in-use') {
-        alert('Ese correo ya está registrado.');
+        setFormErrors((prev) => ({ ...prev, email: { error: true, msg: 'Ese correo ya está registrado' } }));
       } else {
-        alert('No se pudo completar el registro. Intenta de nuevo.');
+        console.error('No se pudo completar el registro.');
       }
     }
   }

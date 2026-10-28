@@ -85,14 +85,13 @@ export default function Page() {
         setPublicationInput('');
         setSelectedEmotion(null);
         setPublications((prev) => [...prev, data.pub]);
-        alert(data.msg);
       } else {
-        alert('No se pudo crear la publicación');
+        console.error('No se pudo crear la publicación');
       }
 
     } catch (error) {
       console.log(error);
-      alert('No se pudo crear la publicación');
+      console.error('No se pudo crear la publicación');
     } finally {
       setIsTransLoading(false);
     }

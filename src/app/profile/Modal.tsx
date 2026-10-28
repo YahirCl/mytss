@@ -105,7 +105,6 @@ const Modal: React.FC = () => {
       }
 
       updateUserData({...userData, avatarUrl:  urlProfile, coverUrl: urlCover} as UserData);
-      alert("Fotos actualizadas correctamente");
       setImages({profileImage: urlProfile as string, coverImage: urlCover as string});
       setNewImages({coverImage: null, profileImage: null});
       setIsOpen(!isOpen);

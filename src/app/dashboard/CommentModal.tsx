@@ -25,7 +25,7 @@ export default function CommentModal({infoPublication, infoCreator, onClickClose
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        alert('No se pudo publicar el comentario');
+        console.error('No se pudo publicar el comentario');
         setLoading(false);
         return;
       }
@@ -33,7 +33,7 @@ export default function CommentModal({infoPublication, infoCreator, onClickClose
 
     } catch (error) {
       console.log(error);
-      alert('No se pudo publicar el comentario');
+      console.error('No se pudo publicar el comentario');
       setLoading(false);
     }
   }

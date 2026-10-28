@@ -44,7 +44,7 @@ export default function InformationComponent({children, title, data, type, name,
     if(success) {
       onChangeEdit(false);
     } else {
-      alert('No se pudo guardar el cambio');
+      console.error('No se pudo guardar el cambio');
     }
 
   }

@@ -158,7 +158,10 @@ export default function EncuestaForm() {
   const handleValidation = () => {
     for (let i = 1; i <= 4; i++) {
       if (formData[`Expresiones_R${i}`] === 'Sí' && !formData[`Expresiones_R${i}_texto`].trim()) {
-        alert(`Por favor proporciona más detalles en la pregunta ${String.fromCharCode(96 + i)}.`);
+        // Lleva al usuario directo al campo que le falta llenar
+        const campo = document.querySelector<HTMLTextAreaElement>(`textarea[name="Expresiones_R${i}_texto"]`);
+        campo?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        campo?.focus();
         return false;
       }
     }
@@ -203,7 +206,7 @@ export default function EncuestaForm() {
         if (userData) updateUserData({ ...userData, encuesta: true });
         router.replace('/dashboard');
       } else {
-        alert('No se pudo guardar la encuesta. Intenta de nuevo.');
+        console.error('No se pudo guardar la encuesta.');
       }
     } catch (error) {
       console.error('Error al enviar la encuesta:', error);

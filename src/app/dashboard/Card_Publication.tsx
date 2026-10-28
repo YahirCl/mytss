@@ -196,7 +196,7 @@ export default function Card_Publication(
             setContenido(dEdit.nContent);
             setEmotion(dEdit.nEmotion)
           } else {
-            alert('No se pudo actualizar la publicación');
+            console.error('No se pudo actualizar la publicación');
           }
         }
         setEditModalOpen(false);
