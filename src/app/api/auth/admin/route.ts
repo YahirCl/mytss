@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
 
       } else if (q === 'Reportes') {
         const pubs = await prisma.publicacion.findMany({
+          where: { alertas: { gt: 0 } }, // solo las que recibieron al menos una alerta
           orderBy:{ alertas : 'desc'},
           select: {
             id: true,

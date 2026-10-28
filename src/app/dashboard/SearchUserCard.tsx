@@ -12,7 +12,7 @@ export default function SearchUserCard({data, onClick} : {data : ResultUser, onC
           width={60}
           height={60}
           src={data.avatarUrl ? data.avatarUrl : "/images/default-user.png"}
-          className='rounded-full'
+          className='rounded-full w-[60px] h-[60px] object-cover shrink-0'
         />
         <h5 className='font-bold text-sm'>{data.nombreUsuario}</h5>
       </div> 

@@ -145,7 +145,7 @@ const Modal: React.FC = () => {
                   alt="Foto de Perfil"
                   width={80}
                   height={80}
-                  className="rounded-full border border-gray-300"
+                  className="rounded-full border border-gray-300 w-20 h-20 object-cover shrink-0"
                 />
                 <div>
                   <h3 className="font-semibold text-lg">Foto de Perfil</h3>

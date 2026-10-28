@@ -18,7 +18,7 @@ export default function Card_Profile({data, onClickUser}: {data : Props, onClick
         src={img ? img : '/images/default-user.png'} // Reemplaza con tu URL
         width={50} 
         height={50} 
-        style={{ borderRadius: '50%' }} // Opcional: estilos adicionales
+        style={{ borderRadius: '50%', width: 50, height: 50, objectFit: 'cover', flexShrink: 0 }} // Siempre redonda
       />
       <div className='ml-2 mt-1'>
         <div className='flex items-center'>

@@ -162,7 +162,7 @@ export default function page() {
                   width={50}
                   height={0}
                   src={userData?.avatarUrl ? userData.avatarUrl : '/images/default-user.png'}
-                  className='rounded-full h-auto w-auto max-h-12'
+                  className='rounded-full w-12 h-12 object-cover shrink-0'
                 />
                 <textarea
                   placeholder="Escribe tu comentario..."

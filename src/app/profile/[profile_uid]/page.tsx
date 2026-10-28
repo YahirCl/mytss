@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Header from '../../Header';
 import ProtectedRoute from '../../ProtectedRoute';
 import Image from 'next/image';
@@ -18,6 +18,7 @@ import { User, VenusAndMars, Calendar1, University    } from 'lucide-react'
 export default function Page() {
   const params = useParams();
   const router = useRouter();
+  const tabParam = useSearchParams().get('tab');
 
   const { profile_uid } = params;
   const { userData, getToken, updateUserData } = useAuth();
@@ -30,7 +31,12 @@ export default function Page() {
 
   const [profileData, setProfileData] = useState<UserData>();
   const [followedBtn, setFollowedBtn] = useState(false);
-  const [activeTab, setActiveTab] = useState('publicaciones'); // Estado para manejar la pestaña activa
+  const [activeTab, setActiveTab] = useState(tabParam === 'informacion' ? 'informacion' : 'publicaciones'); // Estado para manejar la pestaña activa
+
+  // Al entrar desde "Configuración" se abre directamente la pestaña Información
+  useEffect(() => {
+    if (tabParam === 'informacion') setActiveTab('informacion');
+  }, [tabParam]);
 
 
   useEffect(() => {
@@ -153,7 +159,7 @@ export default function Page() {
                 alt="Imagen de Usuario"
                 width={210}
                 height={0}
-                className="rounded-full mt-[-60px] mb-5 max-h-44 max-w-40"
+                className="rounded-full mt-[-60px] mb-5 w-40 h-40 object-cover shrink-0"
               />
               <div className="p-5 w-full">
                 <h1 className="text-4xl font-bold">{profileData?.nombreUsuario}</h1>

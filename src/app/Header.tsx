@@ -136,7 +136,7 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
               alt="Un ícono SVG"
               width={35}
               height={35}
-              className='rounded-full'
+              className='rounded-full w-[35px] h-[35px] object-cover'
             />
           </button>
         </div>
@@ -154,7 +154,10 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
                 </li>
               }
               <li>
-                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex w-full gap-2">
+                <button className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex w-full gap-2" onClick={() => {
+                  setIsOpenDropDown(false);
+                  router.push(`/profile/${auth.currentUser?.uid}?tab=informacion`);
+                }}>
                   <Bolt/>
                   Configuración
                 </button>
