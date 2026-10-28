@@ -26,8 +26,9 @@ Texto: "${text}"`,
     });
 
     const responseText = response.choices[0]?.message.content?.trim() || "";
-    const regex = /\b(bueno|llamado de atención|alerta de vacío existencial)\b/;
-    const match = responseText.match(regex);
+    // Sin \b: no funciona bien con letras acentuadas. Se ignoran mayúsculas.
+    const regex = /(alerta de vacío existencial|llamado de atención|bueno)/;
+    const match = responseText.toLowerCase().match(regex);
 
     return match ? match[0] : "No válido";
   } catch (error) {

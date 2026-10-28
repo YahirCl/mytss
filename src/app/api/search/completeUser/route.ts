@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const uid = searchParams.get('uid');
-        const id = parseInt(searchParams.get('id') as string);
+        const id = parseInt(searchParams.get('id') as string) || 0;
         const uidToSearch = searchParams.get('uidToSearch');
 
         // Buscar por UID si se proporciona

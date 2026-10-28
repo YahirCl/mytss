@@ -40,9 +40,11 @@ export default function InformationComponent({children, title, data, type, name,
     }
 
     const success = await onClickSave(data, name);
+    setIsLoading(false); // antes se quedaba en "Guardando..." si fallaba
     if(success) {
       onChangeEdit(false);
-      setIsLoading(false);
+    } else {
+      alert('No se pudo guardar el cambio');
     }
 
   }

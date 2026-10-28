@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import Loading from '../Loading';
 
 export default function page() {
-  const { userToken, userData } = useAuth();
+  const { getToken, userData } = useAuth();
   const router = useRouter();
 
   const [selected, setSelected] = useState<'Lista_de_Alumnos' | 'Reportes' | 'Mensajes_con_nivel_Alto'>('Lista_de_Alumnos');
@@ -20,39 +20,49 @@ export default function page() {
   const [listReports, setListReports] = useState<Publication[]>([]);
   const [listRiskMessages, setListRiskMessages] = useState<Publication[]>([]);
   const [firstsLoading, setFirstLoading] = useState({Lista_de_Alumnos: true, Reportes: true, Mensajes_con_nivel_Alto: true});
+  const [studentsLoaded, setStudentsLoaded] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
-      console.log(`Voy a hacer el fetch a ${selected}`)
-      const response = await fetch(`/api/auth/admin?q=${selected}`,{
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userToken}`
-        },
-      });
+      try {
+        const response = await fetch(`/api/auth/admin?q=${selected}`,{
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await getToken()}`
+          },
+        });
 
-      const resData = await response.json();
+        const resData = await response.json();
+        const list = Array.isArray(resData) ? resData : [];
 
-      if (selected === 'Lista_de_Alumnos') {
-        setListStudents(resData);
-      } else if (selected === 'Reportes') {
-        setListReports(resData);
-      } else {
-        setListRiskMessages(resData);
+        if (selected === 'Lista_de_Alumnos') {
+          setListStudents(list);
+        } else if (selected === 'Reportes') {
+          setListReports(list);
+        } else {
+          setListRiskMessages(list);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        if (selected === 'Lista_de_Alumnos') setStudentsLoaded(true);
       }
     }
 
-    if(!userData?.usuarioEspecial) router.back();
+    if(!userData?.usuarioEspecial) {
+      router.back();
+      return;
+    }
 
     if (firstsLoading[selected]) {
       setFirstLoading({...firstsLoading, [selected]: false});
-      console.log('Entro aqui')
       fetchData();
     }
   }, [selected]);
 
-  if (listStudents.length === 0) {
+  // Antes, si ningún alumno había contestado la encuesta, se quedaba cargando para siempre
+  if (!studentsLoaded) {
     return <Loading />
   } else {
     return (

@@ -29,10 +29,10 @@ export default function Header({route} : {route: 'HOME' | 'PROFILE' | 'NON'}) {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/search/simpleUser?q=${searchQuery}&uid=${auth.currentUser?.uid}`);
+      const response = await fetch(`/api/search/simpleUser?q=${encodeURIComponent(searchQuery)}&uid=${auth.currentUser?.uid}`);
       const data = await response.json();
 
-      setResultUsers(data);
+      setResultUsers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching results:", error);
     } finally {

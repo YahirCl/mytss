@@ -23,7 +23,7 @@ export default function Card_Comment(
           {cDelete ? (
             <div className='flex p-2 gap-2'>
               <FileX />
-              <h5>Comentario Elimindo</h5>
+              <h5>Comentario Eliminado</h5>
             </div>
           ) : (
             <div className='flex'>

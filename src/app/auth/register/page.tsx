@@ -108,13 +108,19 @@ export default function page() {
       }); 
       
       if (!res.ok) {
-        setIsLoading(false);
         throw new Error('Error al registrar los datos del usuario.');
       }
-      console.log('Registro del usuario completado');
       setIsNewUser(true);
     } catch (error) {
+      // Antes la pantalla de carga se quedaba para siempre si el correo ya existía, etc.
+      setIsLoading(false);
       console.error(error);
+      const code = (error as { code?: string })?.code;
+      if (code === 'auth/email-already-in-use') {
+        alert('Ese correo ya está registrado.');
+      } else {
+        alert('No se pudo completar el registro. Intenta de nuevo.');
+      }
     }
   }
 

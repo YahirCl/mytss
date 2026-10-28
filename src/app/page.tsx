@@ -9,16 +9,17 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-    if (user && userData?.encuesta) {
+    // El administrador se revisa primero; antes nunca se llegaba a esta condición
+    if (user && userData?.usuarioEspecial) {
+      router.replace("/admin_panel")
+    } else if (user && userData?.encuesta) {
       router.replace("/dashboard");
     } else if (user && !userData?.encuesta) {
       router.replace("/auth/form")
-    } else if (user && userData?.usuarioEspecial) {
-      router.replace("/admin_panel")
     } else  {
       router.replace("/auth/login");
     }
-  }, [user, router]);
+  }, [user, userData, router]);
 
   //console.log(user?.uid);
 

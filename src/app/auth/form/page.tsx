@@ -141,7 +141,7 @@ const PreguntaCondicional = ({
 
 export default function EncuestaForm() {
   const router = useRouter();
-  const { userData } = useAuth();
+  const { userData, updateUserData } = useAuth();
 
   const [formData, setFormData] = useState<Record<string, any>>(buildInitialState);
   const [isLoading, setIsLoading] = useState(false);
@@ -199,7 +199,11 @@ export default function EncuestaForm() {
       });
 
       if (response.ok) {
+        // Marca la encuesta como contestada para que no se vuelva a pedir en esta sesión
+        if (userData) updateUserData({ ...userData, encuesta: true });
         router.replace('/dashboard');
+      } else {
+        alert('No se pudo guardar la encuesta. Intenta de nuevo.');
       }
     } catch (error) {
       console.error('Error al enviar la encuesta:', error);

@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    console.log(data);
 
     await prisma.usuario.create({
       data: {
@@ -97,9 +96,20 @@ export async function PUT(request: NextRequest) {
     const data = await request.json();
     const { id, ...resto } = data;
 
+    // Solo se permiten actualizar estos campos (evita que alguien se dé permisos
+    // de administrador, cambie su uid, contadores, etc.)
+    const camposPermitidos = ['nombreCompleto', 'sexo', 'fechaNacimiento', 'carrera', 'avatarUrl', 'coverUrl'];
+    const cambios = Object.fromEntries(
+      Object.entries(resto).filter(([campo]) => camposPermitidos.includes(campo))
+    );
+
+    if (typeof id !== 'number' || Object.keys(cambios).length === 0) {
+      return NextResponse.json({ message: 'Datos inválidos para actualizar' }, { status: 400 });
+    }
+
     await prisma.usuario.update({
       where: { id: id },
-      data: resto,
+      data: cambios,
     });
 
     return NextResponse.json({

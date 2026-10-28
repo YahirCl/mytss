@@ -23,14 +23,18 @@ export default function CommentModal({infoPublication, infoCreator, onClickClose
         }),
       });
 
-      res.json()
-        .then((data) => {
-          console.log(data.msg);
-          onClickClose(res.ok, data.comment)
-      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert('No se pudo publicar el comentario');
+        setLoading(false);
+        return;
+      }
+      onClickClose(true, data.comment);
 
     } catch (error) {
       console.log(error);
+      alert('No se pudo publicar el comentario');
+      setLoading(false);
     }
   }
 

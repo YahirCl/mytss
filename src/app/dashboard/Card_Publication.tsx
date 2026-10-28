@@ -188,11 +188,16 @@ export default function Card_Publication(
         setCommentModalOpen(false);
       }}/>}
 
-      {editModalOpen && <EditModal infoCreator={infoCreator} infoPublication={infoPublication} onClickClose={async (dEdit) => {
+      {editModalOpen && <EditModal infoCreator={infoCreator} infoPublication={{...infoPublication, contenido: contenido, Emotion: emotion}} onClickClose={async (dEdit) => {
         if (dEdit) {
-          await editPublication(id, dEdit.nContent, dEdit.nEmotion.label);
-          setContenido(dEdit.nContent);
-          setEmotion(dEdit.nEmotion)
+          // Solo se actualiza la vista si el servidor guardó el cambio
+          const success = await editPublication(id, dEdit.nContent, dEdit.nEmotion?.label ?? "");
+          if (success) {
+            setContenido(dEdit.nContent);
+            setEmotion(dEdit.nEmotion)
+          } else {
+            alert('No se pudo actualizar la publicación');
+          }
         }
         setEditModalOpen(false);
       }}/>}
@@ -259,10 +264,10 @@ export default function Card_Publication(
 
               const success = await pressedLike(liked);
               if (success) {
-                setLikeLoading(false)
                 setLiked(!liked);
                 setLikes(liked ? likes-1 : likes+1);
               }
+              setLikeLoading(false); // antes se quedaba cargando para siempre si fallaba
             }} disabled={likeLoading}>
               {likeLoading ? (
                 <div role="status">

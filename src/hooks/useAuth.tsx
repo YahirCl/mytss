@@ -13,9 +13,15 @@ type UserContextType = {
   userToken: string;
   updateUserData: (newData: UserData) => void;
   setIsNewUser: (value: boolean) => void;
+  getToken: () => Promise<string>;
 };
 
-const AuthContext = createContext<UserContextType>({ user: null, userData: null, userToken: "", updateUserData: () => {},  setIsNewUser: () => {}});
+// Devuelve un token vigente (Firebase lo renueva solo si ya expiró; los tokens duran 1 hora)
+async function getToken() {
+  return (await auth.currentUser?.getIdToken()) ?? "";
+}
+
+const AuthContext = createContext<UserContextType>({ user: null, userData: null, userToken: "", updateUserData: () => {},  setIsNewUser: () => {}, getToken});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
@@ -59,11 +65,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             let imgUserURL = null;
             let imgCoverURL = null;
 
+            // Si la imagen ya no existe en Storage no debe romper el inicio de sesión
             if(data.avatarUrl !== null) {
-              imgUserURL = await getDownloadURL(ref(storage, `users/${user.uid}/profile_img`));
+              imgUserURL = await getDownloadURL(ref(storage, `users/${user.uid}/profile_img`)).catch(() => data.avatarUrl);
             }
             if(data.coverUrl !== null) {
-              imgCoverURL = await getDownloadURL(ref(storage, `users/${user.uid}/cover_img`));
+              imgCoverURL = await getDownloadURL(ref(storage, `users/${user.uid}/cover_img`)).catch(() => data.coverUrl);
             }
 
             setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
@@ -104,7 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, userData, userToken, updateUserData, setIsNewUser}}>
+    <AuthContext.Provider value={{ user, userData, userToken, updateUserData, setIsNewUser, getToken}}>
       {children}
     </AuthContext.Provider>
   );

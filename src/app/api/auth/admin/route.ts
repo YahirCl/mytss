@@ -1,11 +1,11 @@
-import { verifyToken } from '@/libs/authMiddleware';
+import { verifyAdmin } from '@/libs/authMiddleware';
 import { prisma } from '@/libs/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Obtener un usuario por UID
 export async function GET(request: NextRequest) {
   try {
-    const authResponse = await verifyToken(request);
+    const authResponse = await verifyAdmin(request);
     if (authResponse) return authResponse;
 
     const { searchParams } = new URL(request.url);
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(pubs);
 
       } else {
-        return NextResponse.json({ message: 'Parámetro de Búsqueda incorrecto'}, { status: 500 });
+        return NextResponse.json({ message: 'Parámetro de Búsqueda incorrecto'}, { status: 400 });
       }
       
     //   if (!rI) {

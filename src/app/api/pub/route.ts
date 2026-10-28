@@ -42,18 +42,23 @@ export async function POST(request: NextRequest) {
     });
 
 
-    return NextResponse.json({msg: 'Publicación creada Correctamente', pub: pub});
+    return NextResponse.json({
+      msg: 'Publicación creada Correctamente',
+      pub: { ...pub, interacciones: pub.interacciones.map(i => i.tipoInteraccion) }
+    });
   } catch (error) {
     console.log(error);
+    return NextResponse.json({ msg: 'Error al crear la publicación', error: error }, { status: 500 });
   }
 }
 
 export async function GET(request: NextRequest) {
     try {
       const { searchParams } = new URL(request.url);
-      const yourId = parseInt(searchParams.get('id') as string);
+      const yourId = parseInt(searchParams.get('id') as string) || 0;
       // Buscar por ID si se proporciona
       const publications = await prisma.publicacion.findMany({
+        orderBy: { id: 'asc' },
         select: {
           id: true,
           contenido: true,
@@ -89,10 +94,6 @@ export async function GET(request: NextRequest) {
         }));
 
         return NextResponse.json(formattedPublications);
-
-
-        // Si no se proporciona ni ID ni email
-        return NextResponse.json({ message: 'Se requiere un parámetro de búsqueda (uid)' }, { status: 400 });
     } catch (error) {
         return NextResponse.json({ message: 'Error al buscar usuario', error: error }, { status: 500 });
     }

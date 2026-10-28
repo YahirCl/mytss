@@ -34,7 +34,6 @@ export default function Page() {
   ];
 
   useEffect(() => {
-    console.log("Voy a empezar a cargar las publicaciones");
     async function getPublications() {
       try {
         const res = await fetch(`/api/pub?id=${userData?.id}`, {
@@ -44,16 +43,18 @@ export default function Page() {
           },
         });
         
-        //console.log(await res.json());
-        setPublications(await res.json());
-        setIsLoading(false);
+        const data = await res.json();
+        // Si el servidor responde con error, no se intenta recorrer un objeto como lista
+        setPublications(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     }
 
-    getPublications();
-  }, [userData?.uid])
+    if (userData?.id) getPublications();
+  }, [userData?.id])
 
   const handleEmotionClick = (emoji: string, label: string) => {
     if (selectedEmotion?.emoji === emoji) {
@@ -79,18 +80,21 @@ export default function Page() {
         }),
       });
 
-      res.json()
-        .then((data) => {
-          setPublicationInput('');
-          setSelectedEmotion(null);
-          setPublications([...publications, data.pub]);
-          setIsTransLoading(false);
-          console.log(data.pub);
-          alert(data.msg);
-      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.pub) {
+        setPublicationInput('');
+        setSelectedEmotion(null);
+        setPublications((prev) => [...prev, data.pub]);
+        alert(data.msg);
+      } else {
+        alert('No se pudo crear la publicación');
+      }
 
     } catch (error) {
       console.log(error);
+      alert('No se pudo crear la publicación');
+    } finally {
+      setIsTransLoading(false);
     }
   }
 
@@ -154,20 +158,20 @@ export default function Page() {
             </div>
           </section>
           <div className="flex flex-col-reverse w-full items-center">
-            {publications.map((pub, index) => {
-              const yourInteractions = pub.interacciones as string[];
+            {publications.map((pub) => {
+              const yourInteractions = (pub.interacciones ?? []) as string[];
               const isLiked = yourInteractions.includes("LIKE");
               const isAlerted = yourInteractions.includes("ALERT")
               const own = pub.usuario.uid === userData?.uid;
               return (
-                <div key={index} className="w-[60%]">
+                <div key={pub.id} className="w-[60%]">
                   <Card_Publication
                     infoPublication={pub} 
                     infoCreator={pub.usuario}
                     isLiked={isLiked}
                     isAlerted={isAlerted}
                     showOptionsBtn={own as boolean}
-                    onPressPublication={() => router.push(`publication_complete/${pub.id}`)}
+                    onPressPublication={() => router.push(`/publication_complete/${pub.id}`)}
                     onClickUser={(uid) => router.push(`/profile/${uid}`)}
                     onPressDelete={showModal}
                     onPressAlert={(alerted) => showModal({

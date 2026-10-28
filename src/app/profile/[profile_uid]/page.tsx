@@ -20,7 +20,7 @@ export default function Page() {
   const router = useRouter();
 
   const { profile_uid } = params;
-  const { userData, userToken, updateUserData } = useAuth();
+  const { userData, getToken, updateUserData } = useAuth();
   const own = profile_uid === userData?.uid;
 
   const [isLoadingScreen, setIsLoadingScreen] = useState(true);
@@ -44,7 +44,10 @@ export default function Page() {
         });
         const data = await response.json();
 
-        //console.log(data);
+        if (!response.ok || !data.usuario) {
+          router.replace('/not-found');
+          return;
+        }
         setProfileData(data.usuario as UserData);
         setFollowedBtn(data.followed as boolean);
         setIsLoadingScreen(false);
@@ -54,18 +57,18 @@ export default function Page() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${userToken}`
+            'Authorization': `Bearer ${await getToken()}`
 
           },
         });
 
         const data = await response.json();
-        setProfileData({...userData as UserData, publicaciones: data});
+        setProfileData({...userData as UserData, publicaciones: Array.isArray(data) ? data : []});
         setIsLoadingScreen(false);
       }
     }
 
-    getCompleteUserData();
+    if (userData) getCompleteUserData().catch((error) => console.log(error));
   }, [own, profile_uid, userData]);
 
   async function followUser() {
@@ -83,7 +86,10 @@ export default function Page() {
         }),
       });
 
-      console.log(await response.json());
+      if (!response.ok) {
+        alert('No se pudo completar la acción. Intenta de nuevo.');
+        return;
+      }
       setFollowedBtn(!followedBtn);
       setProfileData({...profileData as UserData, seguidores: followedBtn ? profileData?.seguidores as number - 1 : profileData?.seguidores as number + 1});
       updateUserData({...userData as UserData, siguiendo: followedBtn ? userData?.siguiendo as number - 1 : userData?.siguiendo as number + 1})
@@ -126,8 +132,6 @@ export default function Page() {
   if(isLoadingScreen) {
     return <Loading />
   }
-
-  console.log(profileData);
 
   return (
     <ProtectedRoute>
@@ -204,13 +208,13 @@ export default function Page() {
           {activeTab === 'publicaciones' && (
             <div className="bg-white p-5 rounded-lg shadow flex flex-col gap-1">
               <h2 className="text-lg font-bold mb-4">Publicaciones</h2>
-              {profileData?.publicaciones.map((pub, index) => {
-                const yourInteractions = pub.interacciones as string[];
+              {profileData?.publicaciones.map((pub) => {
+                const yourInteractions = (pub.interacciones ?? []) as string[];
                 const isLiked = yourInteractions.includes("LIKE");
                 const isAlert = yourInteractions.includes("ALERT");
                 return (
                   <Card_Publication
-                    key={index}
+                    key={pub.id}
                     infoPublication={pub}
                     infoCreator={profileData}
                     isLiked={isLiked}
@@ -221,7 +225,7 @@ export default function Page() {
                       txtBtn: alerted ? 'Quitar Alerta' : 'Si, Alertar',
                       msg: alerted ? '¿Estás seguro de que quieres Quitar tu Alerta a esta publicación?' : '¿Estás seguro de que quieres agregar tu Alerta a esta publicación?',
                       title: alerted ? 'Eliminar Alerta' :'Mandar Alerta'})}
-                    onPressPublication={() => router.push(`../publication_complete/${pub.id}`)}
+                    onPressPublication={() => router.push(`/publication_complete/${pub.id}`)}
                     onClickUser={() => window.scrollTo({ top: 0, behavior: 'smooth' })}/>
                 )
               })}
@@ -244,7 +248,7 @@ export default function Page() {
               </InformationComponent>
               <InformationComponent 
                 title='Sexo'
-                data={profileData?.sexo !== null ? profileData?.sexo.toString() as string : ""}
+                data={profileData?.sexo !== null && profileData?.sexo !== undefined ? profileData.sexo.toString() : ""}
                 type='select'
                 name='sexo'
                 showBtnEdit={own}

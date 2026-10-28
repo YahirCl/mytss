@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({comment: comment, msg: 'Comentario creado Correctamente'});
   } catch (error) {
     console.log(error);
+    return NextResponse.json({ msg: 'Error al crear el comentario', error: error }, { status: 500 });
   }
 }
 
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const publicationId = parseInt(searchParams.get('id') as string);
-    const yourId = parseInt(searchParams.get('yourId') as string);
+    const yourId = parseInt(searchParams.get('yourId') as string) || 0;
 
     const res = await prisma.publicacion.findUnique({
       where: {id: publicationId},
@@ -88,7 +89,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(formattedResponse);
 
     } else {
-      return NextResponse.json({ message: 'Publicación NO Encontrada'}, { status: 500 });
+      return NextResponse.json({ message: 'Publicación NO Encontrada'}, { status: 404 });
     }
 
   } catch (error) {
@@ -117,5 +118,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({msg: 'Comentario Eliminado Correctamente'});
   } catch (error) {
     console.log(error);
+    return NextResponse.json({ msg: 'Error al eliminar el comentario', error: error }, { status: 500 });
   }
 }

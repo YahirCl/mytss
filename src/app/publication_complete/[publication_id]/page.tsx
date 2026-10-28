@@ -49,17 +49,20 @@ export default function page() {
         }),
       });
 
-      res.json()
-        .then((data) => {
-          //console.log(data.comment);
-          data.comment.usuario = userData;
-          setPublication({...publication as Publication, reposts: (publication?.reposts as number  + 1), comentarios: [...publication?.comentarios as CommentT[], data.comment]});
-          setComment('');
-          setLoading(false);
-      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.comment) {
+        data.comment.usuario = userData;
+        setPublication((prev) => ({...prev as Publication, reposts: (prev?.reposts as number  + 1), comentarios: [...prev?.comentarios as CommentT[], data.comment]}));
+        setComment('');
+      } else {
+        alert('No se pudo publicar el comentario');
+      }
 
     } catch (error) {
       console.log(error);
+      alert('No se pudo publicar el comentario');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -80,7 +83,7 @@ export default function page() {
         });
   
         if (res.ok) {
-          setPublication({...publication as Publication, reposts: (publication?.reposts as number  - 1)})
+          setPublication((prev) => ({...prev as Publication, reposts: (prev?.reposts as number  - 1)}))
         } 
         return res.ok
   
@@ -111,7 +114,7 @@ export default function page() {
 
         const data = await res.json();
 
-        if (data.message) {
+        if (!res.ok || data.message) {
           router.replace('/NoFoundedPublication')
         } else {
           setPublication(data);
@@ -147,7 +150,7 @@ export default function page() {
               onClickUser={(uid) => router.push(`/profile/${uid}`)}
               commentMade={(commentMade) => {
                 commentMade.usuario = userData as UserData;
-                setPublication({...publication as Publication, reposts: (publication?.reposts as number  + 1), comentarios: [...publication?.comentarios as CommentT[], commentMade]})
+                setPublication((prev) => ({...prev as Publication, reposts: (prev?.reposts as number  + 1), comentarios: [...prev?.comentarios as CommentT[], commentMade]}))
               }}
               />
             <div className='border border-grays-200 mt-[-12px]'/>
@@ -187,11 +190,11 @@ export default function page() {
               </div>
             </div>
             <div className='flex flex-col-reverse'>
-              {publication?.comentarios.map((com, index) => {
+              {publication?.comentarios.map((com) => {
                 const own = com.usuario.uid === userData?.uid ? true : false;
                 return (
                   <Card_Comment
-                    key={index}
+                    key={com.id}
                     infoComment={com} 
                     infoCreator={com.usuario}
                     showBtnDelete={own}

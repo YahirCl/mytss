@@ -6,7 +6,7 @@ import emotions from '@/utils/Emotions';
 export default function EditModal({infoPublication, infoCreator, onClickClose}: {infoPublication : Publication, infoCreator: UserData, onClickClose: (dEdit : {nContent: string, nEmotion: Emotions} | null) => void}) {
 
   const [content, setContent] = useState(infoPublication.contenido);
-  const [selectedEmotion, setSelectedEmotion] = useState<Emotions | null>(infoPublication.Emotion);
+  const [selectedEmotion, setSelectedEmotion] = useState<Emotions | null>(infoPublication.Emotion ?? null);
   const [loading, setLoading] = useState(false);
 
   const handleEmotionClick = (emoji: string, label: string) => {
@@ -17,8 +17,6 @@ export default function EditModal({infoPublication, infoCreator, onClickClose}: 
     }
   };
 
-  //console.log('Design ', (content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion !== infoPublication.Emotion)));
-  console.log('Disabled', !(content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion.label)));
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -59,9 +57,9 @@ export default function EditModal({infoPublication, infoCreator, onClickClose}: 
         </div>
 
         <button className={`px-4 py-2 rounded-full text-white ${
-          (content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion.label)) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
+          (content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion?.label)) ? 'bg-[#4B90E2] hover:bg-blue-500' : 'bg-gray-400 cursor-not-allowed'
           }`}
-          disabled={!(content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion.label))}
+          disabled={!(content !== '' && !loading && (content !== infoPublication.contenido || selectedEmotion?.label !== infoPublication.Emotion?.label))}
           onClick={() => {
             if (loading) return;
             setLoading(true);

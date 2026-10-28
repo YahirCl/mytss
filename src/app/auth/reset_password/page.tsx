@@ -21,11 +21,17 @@ export default function page() {
       setError("");
       setEmail("");
 
-      sendPasswordResetEmail(auth, email)
+      sendPasswordResetEmail(auth, email.trim())
       .then(() => {
         setTimeout(() => {
           setSent(true);
         }, 2000)
+      })
+      .catch((err) => {
+        // Antes se quedaba cargando para siempre si fallaba el envío
+        console.log(err);
+        setLoading(false);
+        setError("No se pudo enviar el correo. Intenta de nuevo.");
       });
     }
   }
