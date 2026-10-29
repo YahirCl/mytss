@@ -73,7 +73,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               imgCoverURL = await getDownloadURL(ref(storage, `users/${user.uid}/cover_img`)).catch(() => data.coverUrl);
             }
 
-            setUserData({...data, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
+            // Si la fecha de nacimiento no está en la base de datos, se usa la guardada en este navegador
+            let fechaNacimiento = data.fechaNacimiento;
+            if (!fechaNacimiento) {
+              try {
+                fechaNacimiento = localStorage.getItem(`fechaNacimiento_${user.uid}`);
+              } catch {
+                fechaNacimiento = null;
+              }
+            }
+
+            setUserData({...data, fechaNacimiento, avatarUrl: imgUserURL, coverUrl: imgCoverURL});
             if (isNewUser || !data.encuesta) {
               if(data.usuarioEspecial) {
                 setRedirectTo("/admin_panel");

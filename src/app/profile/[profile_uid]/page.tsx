@@ -105,6 +105,7 @@ export default function Page() {
   }
 
   async function updatePublicData (data: string | boolean | null, field: string) {
+    let ok = false;
     try {
       const response = await fetch(`/api/auth`,{
         method: 'PUT',
@@ -116,17 +117,31 @@ export default function Page() {
           [field]: data
         }),
       });
-
-      if(response.ok) {
-        updateUserData({...userData as UserData, [field]: data});
-        
-      }
-      return response.ok;
-      
+      ok = response.ok;
+      if (!ok) console.error('El servidor no guardó el campo', field, await response.text());
     } catch (error) {
       console.log(error);
-      return false
     }
+
+    // Fecha de nacimiento: si el servidor no la guarda, se guarda en este navegador
+    if (field === 'fechaNacimiento') {
+      const key = `fechaNacimiento_${userData?.uid}`;
+      try {
+        if (ok || !data) {
+          localStorage.removeItem(key); // ya está en la base de datos (o se borró): no hace falta la copia local
+        } else {
+          localStorage.setItem(key, data as string);
+        }
+        ok = true;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    if (ok) {
+      updateUserData({...userData as UserData, [field]: data});
+    }
+    return ok;
   }
 
   function showModal(texts: {txtBtn: string, title: string, msg: string}): Promise<boolean> {
