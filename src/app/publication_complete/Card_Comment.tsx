@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Card_Profile from '../dashboard/Card_Profile';
 import { FileX, Trash2 } from 'lucide-react';
 
@@ -15,6 +15,16 @@ export default function Card_Comment(
 
   const {id, contenido, fechaComentario} = infoComment;
   const [cDelete, setCDelete] = useState(false);
+  const [hidden, setHidden] = useState(false);
+
+  // Tras eliminar, el aviso "Comentario Eliminado" se muestra un momento y luego desaparece
+  useEffect(() => {
+    if (!cDelete) return;
+    const timer = setTimeout(() => setHidden(true), 2500);
+    return () => clearTimeout(timer);
+  }, [cDelete]);
+
+  if (hidden) return null;
 
   return (
     <>

@@ -47,6 +47,7 @@ export default function Card_Publication(
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [isOpenDropDown, setIsOpenDropDown] = useState(false);
     const [deletedDesign, setDeletedDesign] = useState(false);
+    const [hidden, setHidden] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const bgColor = classNames({
@@ -58,6 +59,13 @@ export default function Card_Publication(
     useEffect(() => {
       setComments(reposts);
     }, [reposts]);
+
+    // Tras eliminar, el aviso "Publicación Eliminada" se muestra un momento y luego desaparece
+    useEffect(() => {
+      if (!deletedDesign) return;
+      const timer = setTimeout(() => setHidden(true), 2500);
+      return () => clearTimeout(timer);
+    }, [deletedDesign]);
 
     useEffect(() => {
       document.addEventListener("mousedown", handleClickOutside);
@@ -184,6 +192,8 @@ export default function Card_Publication(
   
       return false
     };
+
+  if (hidden) return null;
 
   return (
     <>
