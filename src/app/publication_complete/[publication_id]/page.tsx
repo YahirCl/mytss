@@ -134,7 +134,7 @@ export default function page() {
     return (
       <ProtectedRoute>
         <Header route='NON'/>
-        <main className='bg-slate-100 h-screen flex justify-center'>
+        <main className='bg-slate-100 min-h-screen flex justify-center'>
           <section className='bg-white w-2/4'> 
             <Card_Publication 
               infoCreator={publication.usuario as UserData}

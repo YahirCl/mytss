@@ -112,7 +112,7 @@ export default function Page() {
       {isTransLoading && <LoadingTransparent />}
       <ProtectedRoute>
         <Header route='HOME'/>
-        <main className='h-screen flex flex-col items-center bg-slate-100 text-black'>
+        <main className='min-h-screen flex flex-col items-center bg-slate-100 text-black'>
           <section className='border-[1.8px] border-black p-5 rounded-md w-[60%] mt-5'>
             <div className='flex'>
               <Card_Profile data={{name: userData?.nombreUsuario, img: userData?.avatarUrl as string}} />

@@ -68,7 +68,7 @@ export default function page() {
     return (
       <>
         <Header route='NON'/>
-        <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
+        <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-white">
         {/* Sidebar */}
         <div className="w-64 bg-white dark:bg-gray-800 shadow-md flex flex-col p-4">
           <div className="space-y-4">
